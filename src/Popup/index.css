@@ -140,9 +140,13 @@ html[data-extension-popup] body {
   overflow: hidden;
 }
 
+/* Chrome action popup max 800×600px — use most of it for Settings + two columns */
 html[data-extension-popup] #root {
-  width: 600px;
-  height: 400px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 760px;
+  height: 520px;
   overflow: auto;
   font-size: 12px;
 }
