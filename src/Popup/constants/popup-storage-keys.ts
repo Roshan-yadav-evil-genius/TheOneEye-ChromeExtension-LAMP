@@ -10,3 +10,10 @@ export {
   SETTINGS_POST_SCORING,
   SETTINGS_PROFILE_SCORING,
 } from "../../shared/scoring-storage-keys.ts"
+
+export {
+  DASHBOARD_POST_HITS,
+  DASHBOARD_PROFILE_HITS,
+  DASHBOARD_QUALIFIED,
+  DASHBOARD_THRESHOLD_HITS,
+} from "../../shared/dashboard-storage-keys.ts"

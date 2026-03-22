@@ -6,8 +6,10 @@ import {
   UserCheck,
 } from "lucide-react"
 
+import { DashboardHitRow } from "@/components/dashboard/dashboard-hit-row"
 import { StatRow } from "@/components/dashboard/stat-row"
 import { Button } from "@/components/ui/button"
+import { useDashboardLists } from "@/lib/use-dashboard-lists"
 import { usePopupNavStore } from "@/stores/popup-nav-store"
 import { useStatsStore } from "@/stores/stats-store"
 
@@ -31,6 +33,17 @@ const EMPTY_COPY: Record<
 
 export function DashboardPanel() {
   const view = usePopupNavStore((s) => s.dashboardView)
+  const {
+    postHits,
+    profileHits,
+    qualified,
+    loading,
+    dropPost,
+    dropProfile,
+    dropQualifiedRow,
+    qualifyPost,
+    qualifyProfile,
+  } = useDashboardLists()
   const profilesScored = useStatsStore((s) => s.profilesScored)
   const relevantProfiles = useStatsStore((s) => s.relevantProfiles)
   const postsScored = useStatsStore((s) => s.postsScored)
@@ -74,18 +87,64 @@ export function DashboardPanel() {
   }
 
   const { title, hint } = EMPTY_COPY[view]
+  const isEmpty =
+    view === "posts"
+      ? postHits.length === 0
+      : view === "profiles"
+        ? profileHits.length === 0
+        : qualified.length === 0
 
   return (
     <div className="flex min-h-0 flex-col gap-2">
       <p className="text-[0.65rem] leading-snug text-muted-foreground">
         {hint}
       </p>
-      <div className="flex flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-border py-8">
-        <p className="text-xs font-medium text-muted-foreground">None yet</p>
-        <p className="mt-0.5 text-[0.65rem] text-muted-foreground/80">
-          {title}
-        </p>
-      </div>
+      {loading ? (
+        <p className="text-xs text-muted-foreground">Loading…</p>
+      ) : isEmpty ? (
+        <div className="flex flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-border py-8">
+          <p className="text-xs font-medium text-muted-foreground">None yet</p>
+          <p className="mt-0.5 text-[0.65rem] text-muted-foreground/80">
+            {title}
+          </p>
+        </div>
+      ) : (
+        <ul className="flex min-h-0 max-h-[min(360px,50vh)] flex-col gap-1.5 overflow-y-auto pr-0.5">
+          {view === "posts"
+            ? postHits.map((h) => (
+                <li key={h.id}>
+                  <DashboardHitRow
+                    profile={h.post.publisher}
+                    onDrop={() => dropPost(h.id)}
+                    onQualify={() => qualifyPost(h.id)}
+                  />
+                </li>
+              ))
+            : null}
+          {view === "profiles"
+            ? profileHits.map((h) => (
+                <li key={h.id}>
+                  <DashboardHitRow
+                    profile={h.profile}
+                    onDrop={() => dropProfile(h.id)}
+                    onQualify={() => qualifyProfile(h.id)}
+                  />
+                </li>
+              ))
+            : null}
+          {view === "qualified"
+            ? qualified.map((q) => (
+                <li key={q.id}>
+                  <DashboardHitRow
+                    profile={q.profile}
+                    onDrop={() => dropQualifiedRow(q.id)}
+                    showQualify={false}
+                  />
+                </li>
+              ))
+            : null}
+        </ul>
+      )}
     </div>
   )
 }

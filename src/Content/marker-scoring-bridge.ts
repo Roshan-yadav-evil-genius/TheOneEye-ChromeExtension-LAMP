@@ -1,3 +1,4 @@
+import { appendDashboardThresholdHit } from "./append-dashboard-threshold-hit.ts"
 import {
   MARKER_KIND_ATTRIBUTE,
   setMarkerInteractionHandler,
@@ -16,6 +17,7 @@ function isMarkerScoreResultMessage(
   type: typeof MARKER_SCORE_RESULT_TYPE
   markerId: string
   kind: MarkerKind
+  data: unknown
   score: number
   threshold: number
 } {
@@ -26,7 +28,8 @@ function isMarkerScoreResultMessage(
     typeof m.markerId === "string" &&
     (m.kind === "profile" || m.kind === "post") &&
     typeof m.score === "number" &&
-    typeof m.threshold === "number"
+    typeof m.threshold === "number" &&
+    "data" in m
   )
 }
 
@@ -63,6 +66,14 @@ export function registerMarkerScoringBridge(): void {
         threshold: message.threshold,
       })
       notifyAutoscoreScoreFinished(message.markerId, message.kind)
+      if (message.score >= message.threshold) {
+        void appendDashboardThresholdHit({
+          kind: message.kind,
+          data: message.data,
+          score: message.score,
+          threshold: message.threshold,
+        })
+      }
       return
     }
     if (isMarkerScoreErrorMessage(message)) {
