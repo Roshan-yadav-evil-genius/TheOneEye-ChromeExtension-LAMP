@@ -1,6 +1,8 @@
 import { THE_ONE_EYE_MARKER_CLASS } from "../constants.ts"
 import type {
+  MarkerDomState,
   MarkerInteractionPayload,
+  MarkerKind,
   MarkerVisualUpdate,
   Post,
   Profile,
@@ -23,11 +25,19 @@ export const DEFAULT_SCORE_THRESHOLD = 50
  */
 export const MARKER_KIND_ATTRIBUTE = "data-kind" as const
 
+/**
+ * Mirrors visual state for DOM queries. Values: default | loading | score.
+ */
+export const MARKER_STATE_ATTRIBUTE = "data-marker-state" as const
+
 const markerPayloads = new WeakMap<
   HTMLButtonElement,
   MarkerInteractionPayload
 >()
 const markerSpinnerAnimations = new WeakMap<HTMLButtonElement, Animation>()
+
+let autoscoreProfileActive = false
+let autoscorePostActive = false
 
 let interactionHandler: ((payload: MarkerInteractionPayload) => void) | null =
   null
@@ -44,6 +54,62 @@ export function setMarkerInteractionHandler(
 
 function resolveInteractionHandler(): (payload: MarkerInteractionPayload) => void {
   return interactionHandler ?? defaultInteractionHandler
+}
+
+function setMarkerButtonDomState(
+  button: HTMLButtonElement,
+  state: MarkerDomState
+): void {
+  button.setAttribute(MARKER_STATE_ATTRIBUTE, state)
+}
+
+function applyAutoscoreDisabledToButton(button: HTMLButtonElement): void {
+  const kind = button.getAttribute(MARKER_KIND_ATTRIBUTE) as MarkerKind | null
+  if (kind === "profile") {
+    button.disabled = autoscoreProfileActive
+  } else if (kind === "post") {
+    button.disabled = autoscorePostActive
+  }
+}
+
+function refreshAllMarkerAutoscoreDisabled(): void {
+  for (const node of document.querySelectorAll(
+    `button.${THE_ONE_EYE_MARKER_CLASS}`
+  )) {
+    if (node instanceof HTMLButtonElement) {
+      applyAutoscoreDisabledToButton(node)
+    }
+  }
+}
+
+/**
+ * When autoscore is on for a kind, markers of that kind become non-interactive.
+ */
+export function setMarkerAutoscoreFlags(flags: {
+  profile: boolean
+  post: boolean
+}): void {
+  autoscoreProfileActive = flags.profile
+  autoscorePostActive = flags.post
+  refreshAllMarkerAutoscoreDisabled()
+}
+
+export function getMarkerAutoscoreFlags(): {
+  profile: boolean
+  post: boolean
+} {
+  return {
+    profile: autoscoreProfileActive,
+    post: autoscorePostActive,
+  }
+}
+
+export function getMarkerPayloadForId(
+  id: string
+): MarkerInteractionPayload | null {
+  const el = document.getElementById(id)
+  if (!el || !isMarkerButton(el)) return null
+  return markerPayloads.get(el) ?? null
 }
 
 function cancelSpinner(button: HTMLButtonElement): void {
@@ -215,15 +281,18 @@ export function updateMarkerState(id: string, update: MarkerVisualUpdate): void 
   switch (update.state) {
     case "default":
       deformEyeUi(el)
+      setMarkerButtonDomState(el, "default")
       break
     case "loading": {
       const anim = spinnerUi(el)
       markerSpinnerAnimations.set(el, anim)
+      setMarkerButtonDomState(el, "loading")
       break
     }
     case "score": {
       const threshold = update.threshold ?? DEFAULT_SCORE_THRESHOLD
       scoreUi(el, update.score, threshold)
+      setMarkerButtonDomState(el, "score")
       break
     }
   }
@@ -245,6 +314,7 @@ export function placeScoringButton(
   const id = crypto.randomUUID()
   eyeContainer.id = id
   eyeContainer.setAttribute(MARKER_KIND_ATTRIBUTE, kind)
+  setMarkerButtonDomState(eyeContainer, "default")
 
   const payload: MarkerInteractionPayload =
     kind === "profile"
@@ -253,8 +323,10 @@ export function placeScoringButton(
 
   markerPayloads.set(eyeContainer, payload)
   deformEyeUi(eyeContainer)
+  applyAutoscoreDisabledToButton(eyeContainer)
 
   eyeContainer.addEventListener("click", () => {
+    if (eyeContainer.disabled) return
     const p = markerPayloads.get(eyeContainer)
     if (p) {
       resolveInteractionHandler()(p)

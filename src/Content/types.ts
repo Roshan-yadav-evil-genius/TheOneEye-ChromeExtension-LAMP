@@ -27,6 +27,8 @@ export type MarkerInteractionPayload =
   | { id: string; kind: "profile"; data: Profile }
   | { id: string; kind: "post"; data: Post }
 
+export type MarkerDomState = "default" | "loading" | "score"
+
 export type MarkerVisualUpdate =
   | { state: "default" }
   | { state: "loading" }

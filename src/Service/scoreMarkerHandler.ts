@@ -15,7 +15,6 @@ export function registerScoreMarkerListener(): void {
     if (!isScoreMarkerMessage(message)) {
       return false
     }
-
     const tabId = sender.tab?.id
     if (tabId == null) {
       sendResponse({ ok: false, error: "no_tab" })
@@ -24,6 +23,7 @@ export function registerScoreMarkerListener(): void {
 
     void (async () => {
       const { markerId, kind, data } = message
+      console.log("scoreMarkerHandler", message)
       try {
         const thresholds = await getScoringThresholdsFromChrome()
         await delayMs(SCORE_DELAY_MS)

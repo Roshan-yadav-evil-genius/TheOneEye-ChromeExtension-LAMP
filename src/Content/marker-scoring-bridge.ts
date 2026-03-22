@@ -1,10 +1,12 @@
 import {
+  MARKER_KIND_ATTRIBUTE,
   setMarkerInteractionHandler,
   updateMarkerState,
 } from "./Marker/Marker.ts"
-import type { MarkerInteractionPayload } from "./types.ts"
+import { notifyAutoscoreScoreFinished } from "./marker-autoscore.ts"
+import { requestMarkerScore } from "./score-request.ts"
+import type { MarkerInteractionPayload, MarkerKind } from "./types.ts"
 
-const SCORE_MARKER_MESSAGE_TYPE = "scoreMarker" as const
 const MARKER_SCORE_RESULT_TYPE = "markerScoreResult" as const
 const MARKER_SCORE_ERROR_TYPE = "markerScoreError" as const
 
@@ -13,6 +15,7 @@ function isMarkerScoreResultMessage(
 ): msg is {
   type: typeof MARKER_SCORE_RESULT_TYPE
   markerId: string
+  kind: MarkerKind
   score: number
   threshold: number
 } {
@@ -21,6 +24,7 @@ function isMarkerScoreResultMessage(
   return (
     m.type === MARKER_SCORE_RESULT_TYPE &&
     typeof m.markerId === "string" &&
+    (m.kind === "profile" || m.kind === "post") &&
     typeof m.score === "number" &&
     typeof m.threshold === "number"
   )
@@ -42,6 +46,14 @@ function isMarkerScoreErrorMessage(
   )
 }
 
+function readMarkerKindFromDom(markerId: string): MarkerKind | null {
+  const el = document.getElementById(markerId)
+  if (!el) return null
+  const k = el.getAttribute(MARKER_KIND_ATTRIBUTE)
+  if (k === "profile" || k === "post") return k
+  return null
+}
+
 export function registerMarkerScoringBridge(): void {
   chrome.runtime.onMessage.addListener((message) => {
     if (isMarkerScoreResultMessage(message)) {
@@ -50,30 +62,22 @@ export function registerMarkerScoringBridge(): void {
         score: message.score,
         threshold: message.threshold,
       })
+      notifyAutoscoreScoreFinished(message.markerId, message.kind)
       return
     }
     if (isMarkerScoreErrorMessage(message)) {
       if (message.markerId) {
         updateMarkerState(message.markerId, { state: "default" })
+        const kind = readMarkerKindFromDom(message.markerId)
+        if (kind) {
+          notifyAutoscoreScoreFinished(message.markerId, kind)
+        }
       }
       return
     }
   })
 
   setMarkerInteractionHandler((payload: MarkerInteractionPayload) => {
-    updateMarkerState(payload.id, { state: "loading" })
-    chrome.runtime.sendMessage(
-      {
-        type: SCORE_MARKER_MESSAGE_TYPE,
-        markerId: payload.id,
-        kind: payload.kind,
-        data: payload.data,
-      },
-      () => {
-        if (chrome.runtime.lastError) {
-          updateMarkerState(payload.id, { state: "default" })
-        }
-      }
-    )
+    requestMarkerScore(payload)
   })
 }
