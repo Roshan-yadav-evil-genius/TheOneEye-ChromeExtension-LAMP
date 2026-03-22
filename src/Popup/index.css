@@ -147,6 +147,6 @@ html[data-extension-popup] #root {
   min-height: 0;
   width: 760px;
   height: 520px;
-  overflow: auto;
+  overflow: hidden;
   font-size: 12px;
 }

@@ -9,17 +9,29 @@ export function MainPanel() {
 
   switch (primary) {
     case "dashboard":
-      return <DashboardPanel />
-    case "intention":
       return (
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+          <DashboardPanel />
+        </div>
+      )
+    case "intention":
+      return (
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overscroll-contain">
           <IntentionPanel />
         </div>
       )
     case "settings":
-      return <SettingsPanel />
+      return (
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overscroll-contain">
+          <SettingsPanel />
+        </div>
+      )
     case "report":
-      return <ReportPanel />
+      return (
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overscroll-contain">
+          <ReportPanel />
+        </div>
+      )
     default:
       return null
   }

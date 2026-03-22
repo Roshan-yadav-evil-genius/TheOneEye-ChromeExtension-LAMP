@@ -44,7 +44,7 @@ export function PopupSidebar() {
   if (primary === "dashboard") {
     return (
       <aside
-        className="flex w-28 shrink-0 flex-col gap-0.5 border-r border-border py-2 pl-1 pr-1"
+        className="flex h-full min-h-0 w-28 shrink-0 flex-col gap-0.5 self-stretch border-r border-border py-2 pl-1 pr-1"
         aria-label="Section"
       >
         {DASHBOARD_ITEMS.map(({ id, label, icon: Icon }) => {
@@ -73,7 +73,7 @@ export function PopupSidebar() {
   if (primary === "intention") {
     return (
       <aside
-        className="flex w-28 shrink-0 flex-col gap-0.5 border-r border-border py-2 pl-1 pr-1"
+        className="flex h-full min-h-0 w-28 shrink-0 flex-col gap-0.5 self-stretch border-r border-border py-2 pl-1 pr-1"
         aria-label="Section"
       >
         {INTENTION_ITEMS.map(({ id, label, icon: Icon }) => {

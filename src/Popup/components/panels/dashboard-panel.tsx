@@ -53,7 +53,7 @@ export function DashboardPanel() {
 
   if (view === "stats") {
     return (
-      <div className="flex min-h-0 flex-col gap-2">
+      <div className="flex min-h-0 flex-1 flex-col gap-2">
         <div className="flex flex-col gap-1.5">
           <StatRow icon={User} label="Profiles scored" value={profilesScored} />
           <StatRow
@@ -95,21 +95,21 @@ export function DashboardPanel() {
         : qualified.length === 0
 
   return (
-    <div className="flex min-h-0 flex-col gap-2">
-      <p className="text-[0.65rem] leading-snug text-muted-foreground">
+    <div className="flex min-h-0 flex-1 flex-col gap-2">
+      <p className="shrink-0 text-[0.65rem] leading-snug text-muted-foreground">
         {hint}
       </p>
       {loading ? (
-        <p className="text-xs text-muted-foreground">Loading…</p>
+        <p className="shrink-0 text-xs text-muted-foreground">Loading…</p>
       ) : isEmpty ? (
-        <div className="flex flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-border py-8">
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-border py-8">
           <p className="text-xs font-medium text-muted-foreground">None yet</p>
           <p className="mt-0.5 text-[0.65rem] text-muted-foreground/80">
             {title}
           </p>
         </div>
       ) : (
-        <ul className="flex min-h-0 max-h-[min(360px,50vh)] flex-col gap-1.5 overflow-y-auto pr-0.5">
+        <ul className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto overscroll-contain pr-0.5">
           {view === "posts"
             ? postHits.map((h) => (
                 <li key={h.id}>

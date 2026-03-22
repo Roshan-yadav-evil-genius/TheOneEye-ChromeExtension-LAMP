@@ -16,11 +16,11 @@ export function PopupLayout({ children }: PopupLayoutProps) {
   return (
     <div className="flex h-full min-h-0 w-full flex-col bg-background">
       <PopupTopNav />
-      <div className="flex min-h-0 flex-1">
+      <div className="flex min-h-0 flex-1 items-stretch">
         {showSidebar ? <PopupSidebar /> : null}
         <div
           className={cn(
-            "flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overscroll-contain p-2.5",
+            "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden p-2.5",
             !showSidebar && "pl-2.5"
           )}
         >
