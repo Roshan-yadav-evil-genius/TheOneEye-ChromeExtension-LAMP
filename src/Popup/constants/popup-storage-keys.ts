@@ -17,3 +17,5 @@ export {
   DASHBOARD_QUALIFIED,
   DASHBOARD_THRESHOLD_HITS,
 } from "../../shared/dashboard-storage-keys.ts"
+
+export { STATS_LIFETIME } from "../../shared/stats-storage-keys.ts"

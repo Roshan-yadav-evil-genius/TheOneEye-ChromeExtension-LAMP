@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 interface StatRowProps {
   icon: LucideIcon
   label: string
-  value: number
+  value: number | string
   className?: string
 }
 

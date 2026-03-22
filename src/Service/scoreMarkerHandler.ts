@@ -1,6 +1,7 @@
 import type { Post, Profile } from "../Content/types.ts"
 import { getScoringThresholdsFromChrome } from "../shared/get-scoring-thresholds.ts"
 import { delayMs } from "./utils/delay.ts"
+import { incrementScoreStatsAfterEmit } from "./utils/increment-score-stats.ts"
 import { emitMarkerScoreError, emitMarkerScoreResult } from "./utils/score-marker-emit.ts"
 import { isScoreMarkerMessage } from "./utils/score-marker-message-guard.ts"
 import {
@@ -42,6 +43,7 @@ export function registerScoreMarkerListener(): void {
           score,
           threshold,
         })
+        await incrementScoreStatsAfterEmit({ kind, score, threshold })
         sendResponse({ ok: true })
       } catch (e) {
         const err = e instanceof Error ? e.message : String(e)

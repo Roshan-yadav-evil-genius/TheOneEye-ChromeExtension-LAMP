@@ -4,6 +4,11 @@ import {
   writeIntentionToChrome,
   writeScoringSettingsToChrome,
 } from "@/lib/chrome-popup-storage"
+import {
+  getLampStorageBytesInUse,
+  lampStorageKeysTouched,
+} from "@/lib/lamp-storage-byte-size"
+import { readStatsLifetimeFromChrome } from "@/lib/stats-lifetime-storage"
 import { clampScoringToIntention } from "@/lib/clamp-scoring-to-intention"
 import { useIntentionStore } from "@/stores/intention-store"
 import {
@@ -11,6 +16,7 @@ import {
   mergeProfileScoring,
   useScoringSettingsStore,
 } from "@/stores/scoring-settings-store"
+import { useStatsStore } from "@/stores/stats-store"
 
 function persistIntentionNow(): void {
   const { profileDescription, postDescription, keywords } =
@@ -25,6 +31,15 @@ function persistIntentionNow(): void {
 function persistScoringNow(): void {
   const { profile, post } = useScoringSettingsStore.getState()
   void writeScoringSettingsToChrome({ profile, post })
+}
+
+async function refreshStatsFromChrome(): Promise<void> {
+  const [blob, bytes] = await Promise.all([
+    readStatsLifetimeFromChrome(),
+    getLampStorageBytesInUse(),
+  ])
+  useStatsStore.getState().hydrateLifetime(blob)
+  useStatsStore.getState().setStorageBytesUsed(bytes)
 }
 
 /**
@@ -49,11 +64,28 @@ export function initPopupStorage(): () => void {
     clampScoringToIntention()
     if (cancelled) return
 
+    await refreshStatsFromChrome()
+    if (cancelled) return
+
     disposers.push(
       useIntentionStore.subscribe(persistIntentionNow),
       useScoringSettingsStore.subscribe(persistScoringNow)
     )
   })()
+
+  const onStorageChanged: Parameters<
+    typeof chrome.storage.onChanged.addListener
+  >[0] = (changes, area) => {
+    if (area !== "local") return
+    if (!lampStorageKeysTouched(changes)) return
+    void refreshStatsFromChrome()
+  }
+  if (typeof chrome !== "undefined" && chrome.storage?.onChanged) {
+    chrome.storage.onChanged.addListener(onStorageChanged)
+    disposers.push(() => {
+      chrome.storage.onChanged.removeListener(onStorageChanged)
+    })
+  }
 
   return () => {
     cancelled = true

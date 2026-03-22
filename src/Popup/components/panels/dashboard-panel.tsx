@@ -2,6 +2,7 @@ import {
   Database,
   FileCheck,
   FileText,
+  HardDrive,
   User,
   UserCheck,
 } from "lucide-react"
@@ -10,6 +11,7 @@ import { DashboardHitRow } from "@/components/dashboard/dashboard-hit-row"
 import { QualifiedDashboardToolbar } from "@/components/dashboard/qualified-dashboard-toolbar"
 import { StatRow } from "@/components/dashboard/stat-row"
 import { Button } from "@/components/ui/button"
+import { formatBytes } from "@/lib/format-bytes"
 import { useDashboardLists } from "@/lib/use-dashboard-lists"
 import { usePopupNavStore } from "@/stores/popup-nav-store"
 import { useStatsStore } from "@/stores/stats-store"
@@ -49,8 +51,10 @@ export function DashboardPanel() {
   const relevantProfiles = useStatsStore((s) => s.relevantProfiles)
   const postsScored = useStatsStore((s) => s.postsScored)
   const relevantPosts = useStatsStore((s) => s.relevantPosts)
-  const profilesInCache = useStatsStore((s) => s.profilesInCache)
+  const storageBytesUsed = useStatsStore((s) => s.storageBytesUsed)
   const reset = useStatsStore((s) => s.reset)
+  const profilesInCache =
+    postHits.length + profileHits.length + qualified.length
 
   if (view === "stats") {
     return (
@@ -72,6 +76,11 @@ export function DashboardPanel() {
             icon={Database}
             label="Profiles in cache"
             value={profilesInCache}
+          />
+          <StatRow
+            icon={HardDrive}
+            label="Cache size"
+            value={formatBytes(storageBytesUsed)}
           />
         </div>
         <Button

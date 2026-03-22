@@ -13,7 +13,10 @@ export interface DashboardStatsSnapshot {
   relevantProfiles: number
   postsScored: number
   relevantPosts: number
+  /** Row count sum from dashboard lists; computed in UI, not persisted. */
   profilesInCache: number
+  /** Bytes for Lamp-owned chrome.storage.local keys. */
+  storageBytesUsed: number
 }
 
 export interface ProfileScoringSettings {
