@@ -1,17 +1,67 @@
 import { THE_ONE_EYE_MARKER_CLASS } from "../constants.ts"
+import type {
+  MarkerInteractionPayload,
+  MarkerVisualUpdate,
+  Post,
+  Profile,
+} from "../types.ts"
 
 export interface TheOneEyeOptions {
   float?: boolean
 }
 
+export type PlaceScoringButtonOptions =
+  | (TheOneEyeOptions & { kind: "profile"; data: Profile })
+  | (TheOneEyeOptions & { kind: "post"; data: Post })
+
+/** Default threshold for score state: at or above = green, below = red. */
+export const DEFAULT_SCORE_THRESHOLD = 50
+
+/**
+ * Set on each marker button to `profile` or `post`. Example:
+ * `document.querySelectorAll('button.TheOneEyeMarker[data-kind="post"]')`.
+ */
+export const MARKER_KIND_ATTRIBUTE = "data-kind" as const
+
+const markerPayloads = new WeakMap<
+  HTMLButtonElement,
+  MarkerInteractionPayload
+>()
+const markerSpinnerAnimations = new WeakMap<HTMLButtonElement, Animation>()
+
+let interactionHandler: ((payload: MarkerInteractionPayload) => void) | null =
+  null
+
+function defaultInteractionHandler(payload: MarkerInteractionPayload): void {
+  console.log("[TheOneEye marker]", payload)
+}
+
+export function setMarkerInteractionHandler(
+  handler: ((payload: MarkerInteractionPayload) => void) | null
+): void {
+  interactionHandler = handler
+}
+
+function resolveInteractionHandler(): (payload: MarkerInteractionPayload) => void {
+  return interactionHandler ?? defaultInteractionHandler
+}
+
+function cancelSpinner(button: HTMLButtonElement): void {
+  const anim = markerSpinnerAnimations.get(button)
+  if (anim) {
+    anim.cancel()
+    markerSpinnerAnimations.delete(button)
+  }
+}
+
 function createEyeContainer(
-  profile: HTMLElement,
+  host: HTMLElement,
   { float = true }: TheOneEyeOptions = {}
 ): HTMLButtonElement | null {
   if (float) {
-    profile.style.position = "relative"
+    host.style.position = "relative"
   }
-  if (profile.querySelector(`.${THE_ONE_EYE_MARKER_CLASS}`)) return null
+  if (host.querySelector(`.${THE_ONE_EYE_MARKER_CLASS}`)) return null
 
   const eyeRoot = document.createElement("button")
   eyeRoot.type = "button"
@@ -47,7 +97,7 @@ function createEyeContainer(
         cursor: pointer;
         background: transparent;
     `
-  profile.insertBefore(eyeRoot, profile.firstChild)
+  host.insertBefore(eyeRoot, host.firstChild)
   return eyeRoot
 }
 
@@ -99,8 +149,8 @@ function deformEyeUi(container: HTMLElement): void {
   container.appendChild(eyeOuter)
 }
 
-function spinnerUi(container: HTMLElement): void {
-  container.innerHTML = ""
+function spinnerUi(button: HTMLButtonElement): Animation {
+  button.innerHTML = ""
 
   const spinner = document.createElement("div")
   spinner.style.cssText = `
@@ -111,18 +161,21 @@ function spinnerUi(container: HTMLElement): void {
         border-top-color: #e0b741;
         box-sizing: border-box;
     `
-  spinner.animate(
+  button.appendChild(spinner)
+  return spinner.animate(
     [{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }],
     { duration: 700, iterations: Number.POSITIVE_INFINITY, easing: "linear" }
   )
-  container.appendChild(spinner)
 }
 
-function scoreUi(container: HTMLElement): void {
+function scoreUi(
+  container: HTMLElement,
+  score: number,
+  threshold: number
+): void {
   container.innerHTML = ""
 
-  const score = Math.floor(Math.random() * 100) + 1
-  const isGreen = Math.random() < 0.5
+  const isGreen = score >= threshold
   const bgColor = isGreen ? "#1f9d4c" : "#d32f2f"
 
   const badge = document.createElement("div")
@@ -146,27 +199,67 @@ function scoreUi(container: HTMLElement): void {
   container.appendChild(badge)
 }
 
-function attachEyeBehavior(container: HTMLElement): void {
-  let busy = false
-  container.addEventListener("click", () => {
-    if (busy) return
-    busy = true
-    spinnerUi(container)
-    setTimeout(() => {
-      scoreUi(container)
-      busy = false
-    }, 650)
-  })
+function isMarkerButton(el: Element): el is HTMLButtonElement {
+  return (
+    el instanceof HTMLButtonElement &&
+    el.classList.contains(THE_ONE_EYE_MARKER_CLASS)
+  )
 }
 
-/** Injects the TheOneEye marker UI on a profile or post host element. */
+export function updateMarkerState(id: string, update: MarkerVisualUpdate): void {
+  const el = document.getElementById(id)
+  if (!el || !isMarkerButton(el)) return
+
+  cancelSpinner(el)
+
+  switch (update.state) {
+    case "default":
+      deformEyeUi(el)
+      break
+    case "loading": {
+      const anim = spinnerUi(el)
+      markerSpinnerAnimations.set(el, anim)
+      break
+    }
+    case "score": {
+      const threshold = update.threshold ?? DEFAULT_SCORE_THRESHOLD
+      scoreUi(el, update.score, threshold)
+      break
+    }
+  }
+}
+
+/**
+ * Injects a scoring marker on `host`. Returns the marker id, or null if skipped.
+ */
 export function placeScoringButton(
-  profile: HTMLElement | null,
-  options: TheOneEyeOptions = {}
-): void {
-  if (!profile) return
-  const eyeContainer = createEyeContainer(profile, options)
-  if (!eyeContainer) return
+  host: HTMLElement | null,
+  options: PlaceScoringButtonOptions
+): string | null {
+  if (!host) return null
+
+  const { kind, data, ...layoutOpts } = options
+  const eyeContainer = createEyeContainer(host, layoutOpts)
+  if (!eyeContainer) return null
+
+  const id = crypto.randomUUID()
+  eyeContainer.id = id
+  eyeContainer.setAttribute(MARKER_KIND_ATTRIBUTE, kind)
+
+  const payload: MarkerInteractionPayload =
+    kind === "profile"
+      ? { id, kind: "profile", data }
+      : { id, kind: "post", data }
+
+  markerPayloads.set(eyeContainer, payload)
   deformEyeUi(eyeContainer)
-  attachEyeBehavior(eyeContainer)
+
+  eyeContainer.addEventListener("click", () => {
+    const p = markerPayloads.get(eyeContainer)
+    if (p) {
+      resolveInteractionHandler()(p)
+    }
+  })
+
+  return id
 }

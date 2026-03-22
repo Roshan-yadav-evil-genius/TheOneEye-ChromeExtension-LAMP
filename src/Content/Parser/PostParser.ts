@@ -1,6 +1,6 @@
 import { XPATH_POST } from "../constants.ts"
 import { placeScoringButton } from "../Marker/Marker.ts"
-import type { Post,Profile} from "../types.ts"
+import type { Post, Profile } from "../types.ts"
 import {
   collectImgSrcsFromSnapshot,
   xpathFirstNode,
@@ -124,9 +124,16 @@ export function parsePosts(): Post[] {
 
     if (!(profileUrl && profileName && postBody)) continue
 
-    placeScoringButton(postBody, { float: false })
+    placeScoringButton(postBody, {
+      float: false,
+      kind: "post",
+      data: postData,
+    })
     if (authorWrapper instanceof HTMLElement) {
-      placeScoringButton(authorWrapper)
+      placeScoringButton(authorWrapper, {
+        kind: "profile",
+        data: publisher,
+      })
     }
 
     extractedPosts.push(postData)

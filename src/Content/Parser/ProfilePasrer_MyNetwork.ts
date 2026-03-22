@@ -50,14 +50,15 @@ export function parseMyNetworkProfiles(): Profile[] {
 
     if (!(profileUrl.pathname && profileName && profileHeadline)) continue
 
-    placeScoringButton(node)
-
-    parsedProfiles.push({
+    const profile: Profile = {
       url: profileIdentifier,
       avatar: avatarAndCover,
       name: profileName,
       headline: profileHeadline,
-    })
+    }
+
+    placeScoringButton(node, { kind: "profile", data: profile })
+    parsedProfiles.push(profile)
   }
 
   return parsedProfiles

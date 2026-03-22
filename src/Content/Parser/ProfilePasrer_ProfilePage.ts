@@ -55,14 +55,15 @@ export function parseRecommendedProfiles(): Profile[] {
 
     if (!(profileIdentifier && name && headline)) continue
 
-    placeScoringButton(node)
-
-    parsedProfiles.push({
+    const profile: Profile = {
       url: profileIdentifier,
       avatar: avatarAndCover,
       name,
       headline,
-    })
+    }
+
+    placeScoringButton(node, { kind: "profile", data: profile })
+    parsedProfiles.push(profile)
   }
 
   return parsedProfiles
