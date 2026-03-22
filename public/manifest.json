@@ -1,5 +1,6 @@
 {
   "manifest_version": 3,
+  "permissions": ["storage"],
   "name": "Lamp",
   "version": "0.0.1",
   "description": "Lamp(LinkedIn Amplifier) Product of TheOneEye",

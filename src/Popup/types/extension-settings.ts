@@ -18,6 +18,7 @@ export interface DashboardStatsSnapshot {
 
 export interface ProfileScoringSettings {
   sectionEnabled: boolean
+  /** Relevance cutoff; UI uses 1–100. */
   threshold: number
   autoscore: boolean
   headline: boolean
@@ -31,6 +32,7 @@ export interface ProfileScoringSettings {
 
 export interface PostScoringSettings {
   sectionEnabled: boolean
+  /** Relevance cutoff; UI uses 1–100. */
   threshold: number
   autoscore: boolean
 }

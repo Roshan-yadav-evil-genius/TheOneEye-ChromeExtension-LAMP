@@ -9,28 +9,41 @@ interface ScoringSettingsState {
   setPost: (patch: Partial<PostScoringSettings>) => void
 }
 
-const defaultProfile: ProfileScoringSettings = {
+/** Defaults when profile + post intentions are in use (recommended starting point). */
+export const DEFAULT_PROFILE_SCORING: ProfileScoringSettings = {
   sectionEnabled: true,
-  threshold: 5,
-  autoscore: false,
+  threshold: 8,
+  autoscore: true,
   headline: true,
   about: true,
-  activity: true,
-  activityPublished: true,
-  activityReacted: true,
-  activityCommented: true,
+  activity: false,
+  activityPublished: false,
+  activityReacted: false,
+  activityCommented: false,
   useCache: true,
 }
 
-const defaultPost: PostScoringSettings = {
+export const DEFAULT_POST_SCORING: PostScoringSettings = {
   sectionEnabled: true,
   threshold: 5,
-  autoscore: false,
+  autoscore: true,
+}
+
+export function mergeProfileScoring(
+  partial?: Partial<ProfileScoringSettings>
+): ProfileScoringSettings {
+  return { ...DEFAULT_PROFILE_SCORING, ...partial }
+}
+
+export function mergePostScoring(
+  partial?: Partial<PostScoringSettings>
+): PostScoringSettings {
+  return { ...DEFAULT_POST_SCORING, ...partial }
 }
 
 export const useScoringSettingsStore = create<ScoringSettingsState>((set) => ({
-  profile: defaultProfile,
-  post: defaultPost,
+  profile: DEFAULT_PROFILE_SCORING,
+  post: DEFAULT_POST_SCORING,
   setProfile: (patch) =>
     set((s) => ({ profile: { ...s.profile, ...patch } })),
   setPost: (patch) => set((s) => ({ post: { ...s.post, ...patch } })),

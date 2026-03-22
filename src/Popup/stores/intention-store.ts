@@ -15,14 +15,9 @@ function normalizeKeyword(raw: string): string {
 }
 
 export const useIntentionStore = create<IntentionState>((set, get) => ({
-  profileDescription:
-    "we provide managed automation service that designs, operates, and governs business-critical automation workflows for companies.",
+  profileDescription:"",
   postDescription: "",
-  keywords: [
-    "automation systems",
-    "workflow orchestration",
-    "automation infrastructure",
-  ],
+  keywords: [],
   setProfileDescription: (value) => set({ profileDescription: value }),
   setPostDescription: (value) => set({ postDescription: value }),
   addKeyword: (raw) => {
