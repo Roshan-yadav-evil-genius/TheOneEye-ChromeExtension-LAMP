@@ -8,27 +8,10 @@ import {
   SETTINGS_POST_SCORING,
   SETTINGS_PROFILE_SCORING,
 } from "./scoring-storage-keys.ts"
-
-/** Keep aligned with `DEFAULT_PROFILE_SCORING` in Popup `scoring-settings-store.ts`. */
-const DEFAULT_PROFILE_SCORING: ProfileScoringSettings = {
-  sectionEnabled: true,
-  threshold: 8,
-  autoscore: true,
-  headline: true,
-  about: true,
-  activity: false,
-  activityPublished: false,
-  activityReacted: false,
-  activityCommented: false,
-  useCache: true,
-}
-
-/** Keep aligned with `DEFAULT_POST_SCORING` in Popup `scoring-settings-store.ts`. */
-const DEFAULT_POST_SCORING: PostScoringSettings = {
-  sectionEnabled: true,
-  threshold: 5,
-  autoscore: true,
-}
+import {
+  DEFAULT_POST_SCORING,
+  DEFAULT_PROFILE_SCORING,
+} from "./scoring-settings-defaults.ts"
 
 const THRESHOLD_MIN = 1
 const THRESHOLD_MAX = 100

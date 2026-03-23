@@ -3,14 +3,13 @@ import { useScoringSettingsStore } from "@/stores/scoring-settings-store"
 
 /**
  * Ensures scoring toggles stay consistent with intention text and profile Activity gates
- * (About on + non-empty post intention).
+ * (About on + non-empty post intention). Headline preference stays as stored; the Settings
+ * UI disables Headline until headline tags exist.
  */
 export function clampScoringToIntention(): void {
-  const { profileDescription, postDescription, headlineTags } =
-    useIntentionStore.getState()
+  const { profileDescription, postDescription } = useIntentionStore.getState()
   const hasProfileIntent = profileDescription.trim().length > 0
   const hasPostIntent = postDescription.trim().length > 0
-  const hasHeadlineTags = headlineTags.length > 0
 
   const scoring = useScoringSettingsStore.getState()
   if (!hasProfileIntent && scoring.profile.sectionEnabled) {
@@ -21,9 +20,6 @@ export function clampScoringToIntention(): void {
   }
 
   const { profile, setProfile } = useScoringSettingsStore.getState()
-  if (!hasHeadlineTags && profile.headline) {
-    setProfile({ headline: false })
-  }
   const activityAllowed = profile.about && hasPostIntent
   if (
     !activityAllowed &&

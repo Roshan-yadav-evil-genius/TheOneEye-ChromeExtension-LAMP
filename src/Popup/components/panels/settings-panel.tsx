@@ -49,7 +49,7 @@ export function SettingsPanel() {
 
   useEffect(() => {
     clampScoringToIntention()
-  }, [profileDescription, postDescription, headlineTags, profile.about])
+  }, [profileDescription, postDescription, profile.about])
 
   const profileScoringActive = hasProfileIntent && profile.sectionEnabled
   const postScoringActive = hasPostIntent && post.sectionEnabled

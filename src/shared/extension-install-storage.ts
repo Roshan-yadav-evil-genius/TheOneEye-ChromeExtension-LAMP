@@ -1,8 +1,3 @@
-import type {
-  PostScoringSettings,
-  ProfileScoringSettings,
-} from "../Popup/types/extension-settings.ts"
-
 import {
   DASHBOARD_POST_HITS,
   DASHBOARD_PROFILE_HITS,
@@ -13,6 +8,10 @@ import {
   SETTINGS_POST_SCORING,
   SETTINGS_PROFILE_SCORING,
 } from "./scoring-storage-keys.ts"
+import {
+  DEFAULT_POST_SCORING,
+  DEFAULT_PROFILE_SCORING,
+} from "./scoring-settings-defaults.ts"
 import { STATS_LIFETIME_DEFAULT } from "./stats-lifetime-types.ts"
 import { STATS_LIFETIME } from "./stats-storage-keys.ts"
 
@@ -22,28 +21,16 @@ const INTENTION_POST = "intention_post" as const
 const INTENTION_KEYWORDS = "intention_keywords" as const
 const INTENTION_HEADLINE_TAGS = "intention_headline_tags" as const
 
-/**
- * Scoring defaults for a fresh install: same field values as the popup store defaults,
- * but sections off until the user adds intention (matches `clampScoringToIntention`).
- */
-const INSTALL_PROFILE_SCORING: ProfileScoringSettings = {
+/** Fresh install: same defaults as [scoring-settings-defaults.ts](scoring-settings-defaults.ts), sections off until intention exists. */
+const INSTALL_PROFILE_SCORING = {
+  ...DEFAULT_PROFILE_SCORING,
   sectionEnabled: false,
-  threshold: 8,
-  autoscore: true,
-  headline: true,
-  about: true,
-  activity: false,
-  activityPublished: false,
-  activityReacted: false,
-  activityCommented: false,
-  useCache: true,
-}
+} satisfies typeof DEFAULT_PROFILE_SCORING
 
-const INSTALL_POST_SCORING: PostScoringSettings = {
+const INSTALL_POST_SCORING = {
+  ...DEFAULT_POST_SCORING,
   sectionEnabled: false,
-  threshold: 5,
-  autoscore: true,
-}
+} satisfies typeof DEFAULT_POST_SCORING
 
 /**
  * Full `chrome.storage.local` payload for first install. Keys must stay aligned with
