@@ -3,6 +3,7 @@ import type {
   ProfileScoringSettings,
 } from "../Popup/types/extension-settings.ts"
 
+import { isExtensionContextInvalidatedError } from "./chrome-context-errors.ts"
 import {
   SETTINGS_POST_SCORING,
   SETTINGS_PROFILE_SCORING,
@@ -67,26 +68,36 @@ export async function getScoringSettingsFromChrome(): Promise<ScoringSettingsBun
     }
   }
 
-  const raw = await chrome.storage.local.get([
-    SETTINGS_PROFILE_SCORING,
-    SETTINGS_POST_SCORING,
-  ])
+  try {
+    const raw = await chrome.storage.local.get([
+      SETTINGS_PROFILE_SCORING,
+      SETTINGS_POST_SCORING,
+    ])
 
-  let profilePartial: Partial<ProfileScoringSettings> | undefined
-  const p = raw[SETTINGS_PROFILE_SCORING]
-  if (p && typeof p === "object" && !Array.isArray(p)) {
-    profilePartial = p as Partial<ProfileScoringSettings>
-  }
+    let profilePartial: Partial<ProfileScoringSettings> | undefined
+    const p = raw[SETTINGS_PROFILE_SCORING]
+    if (p && typeof p === "object" && !Array.isArray(p)) {
+      profilePartial = p as Partial<ProfileScoringSettings>
+    }
 
-  let postPartial: Partial<PostScoringSettings> | undefined
-  const po = raw[SETTINGS_POST_SCORING]
-  if (po && typeof po === "object" && !Array.isArray(po)) {
-    postPartial = po as Partial<PostScoringSettings>
-  }
+    let postPartial: Partial<PostScoringSettings> | undefined
+    const po = raw[SETTINGS_POST_SCORING]
+    if (po && typeof po === "object" && !Array.isArray(po)) {
+      postPartial = po as Partial<PostScoringSettings>
+    }
 
-  return {
-    profile: mergeProfile(profilePartial),
-    post: mergePost(postPartial),
+    return {
+      profile: mergeProfile(profilePartial),
+      post: mergePost(postPartial),
+    }
+  } catch (e) {
+    if (isExtensionContextInvalidatedError(e)) {
+      return {
+        profile: mergeProfile({ sectionEnabled: false }),
+        post: mergePost({ sectionEnabled: false }),
+      }
+    }
+    throw e
   }
 }
 

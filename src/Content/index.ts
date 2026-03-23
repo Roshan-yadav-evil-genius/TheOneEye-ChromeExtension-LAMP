@@ -9,9 +9,11 @@ import { startLinkedInPageScan } from "./scanner.ts"
 function init(): void {
   if (!location.hostname.endsWith("linkedin.com")) return
   registerMarkerScoringBridge()
-  void registerMarkerAutoscore().then(() => {
-    startLinkedInPageScan()
-  })
+  void registerMarkerAutoscore()
+    .then(() => {
+      startLinkedInPageScan()
+    })
+    .catch(() => {})
 }
 
 if (document.readyState === "loading") {

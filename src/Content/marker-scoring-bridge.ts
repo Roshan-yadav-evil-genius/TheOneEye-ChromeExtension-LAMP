@@ -72,7 +72,7 @@ export function registerMarkerScoringBridge(): void {
           data: message.data,
           score: message.score,
           threshold: message.threshold,
-        })
+        }).catch(() => {})
       }
       return
     }

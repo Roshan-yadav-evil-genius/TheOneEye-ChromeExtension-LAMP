@@ -8,18 +8,23 @@ export function requestMarkerScore(
   options?: { onSendFailed?: () => void }
 ): void {
   updateMarkerState(payload.id, { state: "loading" })
-  chrome.runtime.sendMessage(
-    {
-      type: SCORE_MARKER_MESSAGE_TYPE,
-      markerId: payload.id,
-      kind: payload.kind,
-      data: payload.data,
-    },
-    () => {
-      if (chrome.runtime.lastError) {
-        updateMarkerState(payload.id, { state: "default" })
-        options?.onSendFailed?.()
+  try {
+    chrome.runtime.sendMessage(
+      {
+        type: SCORE_MARKER_MESSAGE_TYPE,
+        markerId: payload.id,
+        kind: payload.kind,
+        data: payload.data,
+      },
+      () => {
+        if (chrome.runtime.lastError) {
+          updateMarkerState(payload.id, { state: "default" })
+          options?.onSendFailed?.()
+        }
       }
-    }
-  )
+    )
+  } catch {
+    updateMarkerState(payload.id, { state: "default" })
+    options?.onSendFailed?.()
+  }
 }

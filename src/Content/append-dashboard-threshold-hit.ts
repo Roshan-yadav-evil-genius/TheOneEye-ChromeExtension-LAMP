@@ -1,3 +1,4 @@
+import { isExtensionContextInvalidatedError } from "../shared/chrome-context-errors.ts"
 import type { DashboardThresholdHit } from "../shared/dashboard-storage-types.ts"
 import type { MarkerKind, Post, Profile } from "./types.ts"
 
@@ -94,22 +95,26 @@ async function maybeAppendPostHit(
   score: number,
   threshold: number
 ): Promise<void> {
-  const raw = await chrome.storage.local.get(DASHBOARD_THRESHOLD_HITS)
-  const list = parseThresholdHits(raw[DASHBOARD_THRESHOLD_HITS])
-  const url = dedupeUrlFromPost(post)
-  if (url !== null && list.some((h) => dedupeUrlForHit(h) === url)) {
-    return
+  try {
+    const raw = await chrome.storage.local.get(DASHBOARD_THRESHOLD_HITS)
+    const list = parseThresholdHits(raw[DASHBOARD_THRESHOLD_HITS])
+    const url = dedupeUrlFromPost(post)
+    if (url !== null && list.some((h) => dedupeUrlForHit(h) === url)) {
+      return
+    }
+    const now = Date.now()
+    list.push({
+      id: crypto.randomUUID(),
+      scoredAt: now,
+      score,
+      threshold,
+      source: "post",
+      post,
+    })
+    await chrome.storage.local.set({ [DASHBOARD_THRESHOLD_HITS]: list })
+  } catch (e) {
+    if (!isExtensionContextInvalidatedError(e)) throw e
   }
-  const now = Date.now()
-  list.push({
-    id: crypto.randomUUID(),
-    scoredAt: now,
-    score,
-    threshold,
-    source: "post",
-    post,
-  })
-  await chrome.storage.local.set({ [DASHBOARD_THRESHOLD_HITS]: list })
 }
 
 export async function appendDashboardThresholdHit(input: {

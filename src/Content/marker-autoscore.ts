@@ -76,16 +76,22 @@ async function refreshScoringFromStorage(): Promise<ScoringSectionFlags> {
 export async function registerMarkerAutoscore(): Promise<void> {
   await refreshScoringFromStorage()
 
-  chrome.storage.onChanged.addListener((changes, areaName) => {
-    if (areaName !== "local") return
-    if (!changes[SETTINGS_PROFILE_SCORING] && !changes[SETTINGS_POST_SCORING]) {
-      return
-    }
-    void refreshScoringFromStorage().then((section) => {
-      runAllLinkedInParsers(section)
-      tickAutoscoreAfterScan()
+  try {
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+      if (areaName !== "local") return
+      if (!changes[SETTINGS_PROFILE_SCORING] && !changes[SETTINGS_POST_SCORING]) {
+        return
+      }
+      void refreshScoringFromStorage()
+        .then((section) => {
+          runAllLinkedInParsers(section)
+          tickAutoscoreAfterScan()
+        })
+        .catch(() => {})
     })
-  })
+  } catch {
+    /* Extension context invalidated — page refresh required for a new content script. */
+  }
 
   tickAutoscoreAfterScan()
 }
