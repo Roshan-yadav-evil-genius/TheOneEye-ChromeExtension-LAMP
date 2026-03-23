@@ -63,6 +63,7 @@ export function initPopupStorage(): () => void {
       post: mergePostScoring(scoringPartial.post),
     })
     clampScoringToIntention()
+    persistScoringNow()
     if (cancelled) return
 
     await refreshStatsFromChrome()

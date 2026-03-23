@@ -8,9 +8,12 @@ export function scoreLinkedInProfile(
   intention: ScoringIntentionSnapshot,
   settings: ScoringSettingsBundle
 ): number {
-  void data
-  void intention
+  const payload ={
+    data,
+    intention,
+  }
   void settings
+  console.log("scoreLinkedInProfile", payload)
   return Math.floor(Math.random() * 101)
 }
 
@@ -20,8 +23,13 @@ export function scoreLinkedInPost(
   intention: ScoringIntentionSnapshot,
   settings: ScoringSettingsBundle
 ): number {
-  void data
-  void intention
+  const payload ={
+    data,
+    intention:{objective:intention.postDescription,Keywords:intention.keywords},
+  }
   void settings
+  
+  console.log("scoreLinkedInPost", payload)
+
   return Math.floor(Math.random() * 101)
 }
