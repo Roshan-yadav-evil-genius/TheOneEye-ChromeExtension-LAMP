@@ -253,6 +253,18 @@ export async function qualifyThresholdHit(id: string): Promise<void> {
   })
 }
 
+/** Clears Posts and Profiles lists only; Qualified list is unchanged. */
+export async function clearThresholdHitsPreservingQualified(): Promise<void> {
+  if (typeof chrome === "undefined" || !chrome.storage?.local) return
+  await chrome.storage.local.set({
+    [DASHBOARD_THRESHOLD_HITS]: [],
+  })
+  await chrome.storage.local.remove([
+    DASHBOARD_POST_HITS,
+    DASHBOARD_PROFILE_HITS,
+  ])
+}
+
 export const DASHBOARD_STORAGE_KEYS = [
   DASHBOARD_THRESHOLD_HITS,
   DASHBOARD_POST_HITS,

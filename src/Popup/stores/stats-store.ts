@@ -1,5 +1,6 @@
 import { create } from "zustand"
 
+import { clearThresholdHitsPreservingQualified } from "@/lib/dashboard-lists-storage"
 import { getLampStorageBytesInUse } from "@/lib/lamp-storage-byte-size"
 import { resetStatsLifetimeInChrome } from "@/lib/stats-lifetime-storage"
 import type { StatsLifetimeBlob } from "../../shared/stats-lifetime-types.ts"
@@ -41,7 +42,10 @@ export const useStatsStore = create<StatsState>((set) => ({
     set({ storageBytesUsed: Number.isFinite(bytes) ? Math.max(0, bytes) : 0 }),
   reset: () => {
     void (async () => {
-      await resetStatsLifetimeInChrome()
+      await Promise.all([
+        resetStatsLifetimeInChrome(),
+        clearThresholdHitsPreservingQualified(),
+      ])
       const bytes = await getLampStorageBytesInUse()
       set({ ...lifetimeZeros, storageBytesUsed: bytes })
     })()

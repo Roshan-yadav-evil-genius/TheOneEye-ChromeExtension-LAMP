@@ -1,5 +1,7 @@
 import type { StatsLifetimeBlob } from "../../shared/stats-lifetime-types.ts"
-import { STATS_LIFETIME } from "../../shared/stats-storage-keys.ts"
+
+/** Keep in sync with shared/stats-storage-keys.ts */
+const STATS_LIFETIME = "lamp_stats_lifetime"
 
 /** Keep in sync with STATS_LIFETIME_DEFAULT in shared/stats-lifetime-types.ts */
 const EMPTY_STATS: StatsLifetimeBlob = {
