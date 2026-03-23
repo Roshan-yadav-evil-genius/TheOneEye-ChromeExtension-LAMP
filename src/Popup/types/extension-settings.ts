@@ -6,7 +6,7 @@ export type PrimaryTab = "dashboard" | "intention" | "settings" | "report"
 
 export type DashboardView = "posts" | "profiles" | "qualified" | "stats"
 
-export type IntentionView = "profile" | "post" | "keywords"
+export type IntentionView = "profile" | "post" | "keywords" | "headline"
 
 export interface DashboardStatsSnapshot {
   profilesScored: number
@@ -44,6 +44,7 @@ export interface IntentionPayload {
   profileDescription: string
   postDescription: string
   keywords: string[]
+  headlineTags: string[]
 }
 
 export interface ReportIssuePayload {

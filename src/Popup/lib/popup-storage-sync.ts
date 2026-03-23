@@ -19,12 +19,13 @@ import {
 import { useStatsStore } from "@/stores/stats-store"
 
 function persistIntentionNow(): void {
-  const { profileDescription, postDescription, keywords } =
+  const { profileDescription, postDescription, keywords, headlineTags } =
     useIntentionStore.getState()
   void writeIntentionToChrome({
     profileDescription,
     postDescription,
     keywords,
+    headlineTags,
   })
 }
 

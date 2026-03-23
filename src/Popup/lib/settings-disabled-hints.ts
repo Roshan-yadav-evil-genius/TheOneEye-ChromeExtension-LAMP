@@ -65,6 +65,10 @@ export function hintWhenActivitySectionBlocked(
   return undefined
 }
 
+/** When profile scoring is on but headline tags are empty. */
+export const HINT_HEADLINE_TAGS_REQUIRED =
+  "Add at least one headline target under Intention → Headline to enable Headline scoring."
+
 export function hintActivitySubOptions(
   activityEnabled: boolean,
   hasProfileIntent: boolean,

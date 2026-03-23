@@ -5,6 +5,7 @@
 export const INTENTION_PROFILE = "intention_profile" as const
 export const INTENTION_POST = "intention_post" as const
 export const INTENTION_KEYWORDS = "intention_keywords" as const
+export const INTENTION_HEADLINE_TAGS = "intention_headline_tags" as const
 
 export {
   SETTINGS_POST_SCORING,

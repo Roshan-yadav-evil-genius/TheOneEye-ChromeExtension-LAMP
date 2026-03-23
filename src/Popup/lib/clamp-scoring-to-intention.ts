@@ -6,9 +6,11 @@ import { useScoringSettingsStore } from "@/stores/scoring-settings-store"
  * (About on + non-empty post intention).
  */
 export function clampScoringToIntention(): void {
-  const { profileDescription, postDescription } = useIntentionStore.getState()
+  const { profileDescription, postDescription, headlineTags } =
+    useIntentionStore.getState()
   const hasProfileIntent = profileDescription.trim().length > 0
   const hasPostIntent = postDescription.trim().length > 0
+  const hasHeadlineTags = headlineTags.length > 0
 
   const scoring = useScoringSettingsStore.getState()
   if (!hasProfileIntent && scoring.profile.sectionEnabled) {
@@ -19,6 +21,9 @@ export function clampScoringToIntention(): void {
   }
 
   const { profile, setProfile } = useScoringSettingsStore.getState()
+  if (!hasHeadlineTags && profile.headline) {
+    setProfile({ headline: false })
+  }
   const activityAllowed = profile.about && hasPostIntent
   if (
     !activityAllowed &&

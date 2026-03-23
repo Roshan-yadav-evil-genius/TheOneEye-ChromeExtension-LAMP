@@ -18,6 +18,7 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { clampScoringToIntention } from "@/lib/clamp-scoring-to-intention"
 import {
+  HINT_HEADLINE_TAGS_REQUIRED,
   hintActivitySubOptions,
   hintPostSectionSwitch,
   hintProfileSectionSwitch,
@@ -36,6 +37,7 @@ import { useScoringSettingsStore } from "@/stores/scoring-settings-store"
 export function SettingsPanel() {
   const profileDescription = useIntentionStore((s) => s.profileDescription)
   const postDescription = useIntentionStore((s) => s.postDescription)
+  const headlineTags = useIntentionStore((s) => s.headlineTags)
   const profile = useScoringSettingsStore((s) => s.profile)
   const post = useScoringSettingsStore((s) => s.post)
   const setProfile = useScoringSettingsStore((s) => s.setProfile)
@@ -43,10 +45,11 @@ export function SettingsPanel() {
 
   const hasProfileIntent = profileDescription.trim().length > 0
   const hasPostIntent = postDescription.trim().length > 0
+  const hasHeadlineTags = headlineTags.length > 0
 
   useEffect(() => {
     clampScoringToIntention()
-  }, [profileDescription, postDescription, profile.about])
+  }, [profileDescription, postDescription, headlineTags, profile.about])
 
   const profileScoringActive = hasProfileIntent && profile.sectionEnabled
   const postScoringActive = hasPostIntent && post.sectionEnabled
@@ -76,6 +79,14 @@ export function SettingsPanel() {
     hasPostIntent,
     profile.activity
   )
+
+  const headlineToggleDisabled =
+    !profileScoringActive || !hasHeadlineTags
+  const headlineToggleHint = !profileScoringActive
+    ? profileInnerHint
+    : !hasHeadlineTags
+      ? HINT_HEADLINE_TAGS_REQUIRED
+      : undefined
 
   return (
     <div className="grid min-h-0 grid-cols-1 gap-2 sm:grid-cols-2">
@@ -137,8 +148,8 @@ export function SettingsPanel() {
               label="Headline"
               checked={profile.headline}
               onCheckedChange={(v) => setProfile({ headline: v })}
-              disabled={!profileScoringActive}
-              disabledHint={profileInnerHint}
+              disabled={headlineToggleDisabled}
+              disabledHint={headlineToggleHint}
             />
             <SettingsToggleRow
               icon={FileText}

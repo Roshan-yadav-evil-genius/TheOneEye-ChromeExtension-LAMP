@@ -1,6 +1,7 @@
 import type { PostScoringSettings, ProfileScoringSettings } from "@/types/extension-settings"
 
 import {
+  INTENTION_HEADLINE_TAGS,
   INTENTION_KEYWORDS,
   INTENTION_POST,
   INTENTION_PROFILE,
@@ -16,6 +17,7 @@ type IntentionStored = {
   [INTENTION_PROFILE]: string
   [INTENTION_POST]: string
   [INTENTION_KEYWORDS]: string[]
+  [INTENTION_HEADLINE_TAGS]: string[]
 }
 
 type SettingsStored = {
@@ -24,19 +26,26 @@ type SettingsStored = {
 }
 
 export async function readIntentionFromChrome(): Promise<
-  Partial<{ profileDescription: string; postDescription: string; keywords: string[] }>
+  Partial<{
+    profileDescription: string
+    postDescription: string
+    keywords: string[]
+    headlineTags: string[]
+  }>
 > {
   if (!isChromeStorageAvailable()) return {}
   const keys: string[] = [
     INTENTION_PROFILE,
     INTENTION_POST,
     INTENTION_KEYWORDS,
+    INTENTION_HEADLINE_TAGS,
   ]
   const raw = await chrome.storage.local.get(keys)
   const out: Partial<{
     profileDescription: string
     postDescription: string
     keywords: string[]
+    headlineTags: string[]
   }> = {}
   if (typeof raw[INTENTION_PROFILE] === "string") {
     out.profileDescription = raw[INTENTION_PROFILE]
@@ -49,6 +58,11 @@ export async function readIntentionFromChrome(): Promise<
       (k): k is string => typeof k === "string"
     )
   }
+  if (Array.isArray(raw[INTENTION_HEADLINE_TAGS])) {
+    out.headlineTags = raw[INTENTION_HEADLINE_TAGS].filter(
+      (k): k is string => typeof k === "string"
+    )
+  }
   return out
 }
 
@@ -56,12 +70,14 @@ export async function writeIntentionToChrome(payload: {
   profileDescription: string
   postDescription: string
   keywords: string[]
+  headlineTags: string[]
 }): Promise<void> {
   if (!isChromeStorageAvailable()) return
   const record: IntentionStored = {
     [INTENTION_PROFILE]: payload.profileDescription,
     [INTENTION_POST]: payload.postDescription,
     [INTENTION_KEYWORDS]: payload.keywords,
+    [INTENTION_HEADLINE_TAGS]: payload.headlineTags,
   }
   await chrome.storage.local.set(record)
 }

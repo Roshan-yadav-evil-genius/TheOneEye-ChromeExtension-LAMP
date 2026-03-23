@@ -1,6 +1,7 @@
 import {
   BarChart3,
   FileText,
+  Heading,
   Star,
   Tag,
   User,
@@ -30,6 +31,7 @@ const INTENTION_ITEMS: {
   icon: typeof User
 }[] = [
   { id: "profile", label: "Profile", icon: User },
+  { id: "headline", label: "Headline", icon: Heading },
   { id: "post", label: "Post", icon: FileText },
   { id: "keywords", label: "Keywords", icon: Tag },
 ]
