@@ -16,9 +16,14 @@ import {
 import type { EnrichedLinkedInProfilePayload } from "./types.ts"
 
 function extractPublicIdentifierFromProfileUrl(url: string): string | null {
+  const trimmed = url.trim()
+  if (!trimmed) return null
   try {
-    const parsed = new URL(url)
-    const match = parsed.pathname.match(/^\/in\/([^/]+)/i)
+    const pathname =
+      trimmed.startsWith("http://") || trimmed.startsWith("https://")
+        ? new URL(trimmed).pathname
+        : trimmed.split("?")[0].split("#")[0]
+    const match = pathname.match(/^\/in\/([^/]+)/i)
     return match?.[1] ? decodeURIComponent(match[1]) : null
   } catch {
     return null
