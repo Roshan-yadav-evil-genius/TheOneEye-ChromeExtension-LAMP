@@ -8,6 +8,7 @@ import { submitReportIssue } from "@/lib/submit-report"
 
 export function ReportPanel() {
   const [description, setDescription] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   return (
     <div className="flex min-h-0 flex-col gap-3">
@@ -32,12 +33,28 @@ export function ReportPanel() {
         type="button"
         className="mt-auto w-full"
         size="sm"
-        onClick={() => {
-          submitReportIssue({ description })
-          console.info("[Lamp] report submit (stub)", { description })
+        disabled={isSubmitting || description.trim().length === 0}
+        onClick={async () => {
+          const trimmedDescription = description.trim()
+          if (!trimmedDescription || isSubmitting) {
+            return
+          }
+
+          setIsSubmitting(true)
+          try {
+            const message = await submitReportIssue({
+              description: trimmedDescription,
+            })
+            console.info("[Lamp] report submit success", { message })
+            setDescription("")
+          } catch (error) {
+            console.error("[Lamp] report submit failed", error)
+          } finally {
+            setIsSubmitting(false)
+          }
         }}
       >
-        Submit
+        {isSubmitting ? "Submitting..." : "Submit"}
       </Button>
     </div>
   )
