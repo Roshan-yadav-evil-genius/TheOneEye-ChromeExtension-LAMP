@@ -1,7 +1,6 @@
 import type { Post, Profile } from "../Content/types.ts"
 import { getIntentionFromChrome } from "../shared/get-intention-from-chrome.ts"
 import { getScoringSettingsFromChrome } from "../shared/get-scoring-settings-from-chrome.ts"
-import { delayMs } from "./utils/delay.ts"
 import { incrementScoreStatsAfterEmit } from "./utils/increment-score-stats.ts"
 import { emitMarkerScoreError, emitMarkerScoreResult } from "./utils/score-marker-emit.ts"
 import { isScoreMarkerMessage } from "./utils/score-marker-message-guard.ts"
@@ -10,7 +9,6 @@ import {
   scoreLinkedInProfile,
 } from "./utils/score-marker-scorers.ts"
 
-const SCORE_DELAY_MS = 2000
 
 export function registerScoreMarkerListener(): void {
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -30,7 +28,6 @@ export function registerScoreMarkerListener(): void {
           getScoringSettingsFromChrome(),
           getIntentionFromChrome(),
         ])
-        await delayMs(SCORE_DELAY_MS)
 
         const score =
           kind === "profile"
