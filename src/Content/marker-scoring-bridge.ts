@@ -158,8 +158,8 @@ export function registerMarkerScoringBridge(): void {
         void (async () => {
           const restored = await tryRestoreProfileMarkerFromCache(markerId)
           if (!restored) {
-            updateMarkerState(markerId, { state: "default" })
-            console.log("[SCORE][BRIDGE] marker state reset to default", {
+            updateMarkerState(markerId, { state: "error" })
+            console.log("[SCORE][BRIDGE] marker state set to error", {
               markerId,
             })
           } else {

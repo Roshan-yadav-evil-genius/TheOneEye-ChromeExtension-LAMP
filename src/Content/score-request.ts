@@ -8,10 +8,10 @@ import { tryRestoreProfileMarkerFromCache } from "./try-restore-profile-marker-f
 import type { MarkerInteractionPayload } from "./types.ts"
 import { buildEnrichedLinkedInProfilePayloadForContent } from "./VoyagerApi/index.ts"
 
-async function restoreCachedProfileScoreOrDefault(markerId: string): Promise<void> {
+async function restoreCachedProfileScoreOrError(markerId: string): Promise<void> {
   const restored = await tryRestoreProfileMarkerFromCache(markerId)
   if (!restored) {
-    updateMarkerState(markerId, { state: "default" })
+    updateMarkerState(markerId, { state: "error" })
   }
 }
 
@@ -63,7 +63,7 @@ export function requestMarkerScore(
             error: chrome.runtime.lastError,
           })
           void (async () => {
-            await restoreCachedProfileScoreOrDefault(payload.id)
+            await restoreCachedProfileScoreOrError(payload.id)
             notifyError(formatScoreRuntimeError())
             options?.onSendFailed?.()
           })()
@@ -80,7 +80,7 @@ export function requestMarkerScore(
         kind: payload.kind,
         error,
       })
-      await restoreCachedProfileScoreOrDefault(payload.id)
+      await restoreCachedProfileScoreOrError(payload.id)
       notifyError(formatScoreEnrichmentError())
       options?.onSendFailed?.()
     }

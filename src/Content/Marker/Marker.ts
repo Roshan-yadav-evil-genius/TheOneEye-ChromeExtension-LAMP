@@ -27,7 +27,7 @@ export const DEFAULT_SCORE_THRESHOLD = 50
 export const MARKER_KIND_ATTRIBUTE = "data-kind" as const
 
 /**
- * Mirrors visual state for DOM queries. Values: default | loading | score.
+ * Mirrors visual state for DOM queries. Values: default | loading | score | error.
  */
 export const MARKER_STATE_ATTRIBUTE = "data-marker-state" as const
 
@@ -291,6 +291,25 @@ function scoreUi(
   container.appendChild(badge)
 }
 
+/** Scoring failed: solid red disc, no score number (autoscore skips this state). */
+function errorUi(container: HTMLElement): void {
+  container.innerHTML = ""
+
+  const disc = document.createElement("div")
+  disc.style.cssText = `
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 2px solid #e0b741;
+        box-sizing: border-box;
+        background: #b91c1c;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `
+  container.appendChild(disc)
+}
+
 function isMarkerButton(el: Element): el is HTMLButtonElement {
   return (
     el instanceof HTMLButtonElement &&
@@ -321,6 +340,10 @@ export function updateMarkerState(id: string, update: MarkerVisualUpdate): void 
       setMarkerButtonDomState(el, "score")
       break
     }
+    case "error":
+      errorUi(el)
+      setMarkerButtonDomState(el, "error")
+      break
   }
 }
 
