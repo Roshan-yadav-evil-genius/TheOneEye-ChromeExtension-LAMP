@@ -11,6 +11,7 @@ const EMPTY_STATS: StatsLifetimeBlob = {
   relevantPosts: 0,
 }
 
+/** Type guard for persisted stats blob shape. */
 function isStatsLifetimeBlob(x: unknown): x is StatsLifetimeBlob {
   if (!x || typeof x !== "object") return false
   const o = x as Record<string, unknown>
@@ -32,6 +33,11 @@ function parseBlob(raw: unknown): StatsLifetimeBlob {
   }
 }
 
+/**
+ * Bumps lifetime scored counts and relevance counts after a successful score emit.
+ *
+ * @remarks Persists to chrome.storage.local under STATS_LIFETIME; relevance increments when score >= threshold.
+ */
 export async function incrementScoreStatsAfterEmit(input: {
   kind: "profile" | "post"
   score: number

@@ -4,6 +4,11 @@ import {
   type TabMarkerScorePayload,
 } from "../types/score-marker-messages.ts"
 
+/**
+ * Sends a successful score payload to the content script in the given tab.
+ *
+ * @remarks Uses chrome.tabs.sendMessage; logs emit for debugging.
+ */
 export async function emitMarkerScoreResult(
   tabId: number,
   payload: TabMarkerScorePayload
@@ -19,6 +24,11 @@ export async function emitMarkerScoreResult(
   })
 }
 
+/**
+ * Notifies the content script that scoring failed for a marker.
+ *
+ * @remarks Swallows send failures (e.g. tab closed); logs errors.
+ */
 export async function emitMarkerScoreError(
   tabId: number,
   markerId: string | undefined,

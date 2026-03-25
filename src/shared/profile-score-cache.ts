@@ -3,6 +3,7 @@ import { PROFILE_SCORE_CACHE } from "./profile-score-cache-storage-key.ts"
 
 type ProfileScoreCacheMap = Record<string, number>
 
+/** Type guard: plain object with finite number values only. */
 function isProfileScoreCacheMap(v: unknown): v is ProfileScoreCacheMap {
   if (!v || typeof v !== "object" || Array.isArray(v)) return false
   for (const [, val] of Object.entries(v as Record<string, unknown>)) {
@@ -11,6 +12,7 @@ function isProfileScoreCacheMap(v: unknown): v is ProfileScoreCacheMap {
   return true
 }
 
+/** Loads the profile score map from chrome.storage.local or returns {}. */
 async function readMap(): Promise<ProfileScoreCacheMap> {
   if (typeof chrome === "undefined" || !chrome.storage?.local) {
     return {}

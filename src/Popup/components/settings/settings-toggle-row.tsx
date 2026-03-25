@@ -13,6 +13,7 @@ type SettingsToggleRowProps = {
   disabledHint?: string
 }
 
+/** Labeled switch row with optional disabled tooltip via DisabledHint. */
 export function SettingsToggleRow({
   icon: Icon,
   label,

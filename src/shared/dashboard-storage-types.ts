@@ -1,5 +1,6 @@
 import type { Post, Profile } from "../Content/types.ts"
 
+/** Single dashboard row: profile or post that met the user’s score threshold. */
 export type DashboardThresholdHit =
   | {
       id: string
@@ -18,6 +19,7 @@ export type DashboardThresholdHit =
       post: Post
     }
 
+/** Manually qualified profile row for the qualified-profiles list. */
 export type DashboardQualifiedRow = {
   id: string
   qualifiedAt: number

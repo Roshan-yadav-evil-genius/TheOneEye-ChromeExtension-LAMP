@@ -1,12 +1,14 @@
 import type { ProfileScoringSettings } from "../../Popup/types/extension-settings.ts"
 import type { VoyagerActivityKey } from "./types.ts"
 
+/** One GraphQL activity feed query keyed for enrichment payload assembly. */
 export type ActivityRequestType = {
   key: VoyagerActivityKey
   queryId: string
   refererSuffix: "all" | "reactions" | "comments"
 }
 
+/** Catalog of Voyager activity queries used when profile activity toggles are on. */
 export const ACTIVITY_REQUEST_TYPES: ActivityRequestType[] = [
   {
     key: "published",
@@ -25,6 +27,7 @@ export const ACTIVITY_REQUEST_TYPES: ActivityRequestType[] = [
   },
 ]
 
+/** Filters ACTIVITY_REQUEST_TYPES by the user’s published/reacted/commented toggles. */
 export function getEnabledActivityRequestTypes(
   settings: ProfileScoringSettings
 ): ActivityRequestType[] {

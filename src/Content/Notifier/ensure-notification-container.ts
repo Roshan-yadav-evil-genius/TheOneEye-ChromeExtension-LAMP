@@ -5,6 +5,7 @@ import {
   NOTIFICATION_Z_INDEX,
 } from "./notifier-constants.ts"
 
+/** Creates the fixed-position flex column host for stacked toasts. */
 function createNotificationContainer(): HTMLDivElement {
   const el = document.createElement("div")
   el.id = NOTIFICATION_CONTAINER_ELEMENT_ID
@@ -29,7 +30,7 @@ function createNotificationContainer(): HTMLDivElement {
  * Returns the stack host, creating and appending it when missing or detached.
  */
 export function ensureNotificationContainer(): HTMLElement {
-  let el = document.getElementById(NOTIFICATION_CONTAINER_ELEMENT_ID)
+  const el = document.getElementById(NOTIFICATION_CONTAINER_ELEMENT_ID)
   if (el instanceof HTMLElement && el.isConnected) {
     return el
   }

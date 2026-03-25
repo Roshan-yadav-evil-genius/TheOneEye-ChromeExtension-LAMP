@@ -22,6 +22,7 @@ import {
 const MARKER_SCORE_RESULT_TYPE = "markerScoreResult" as const
 const MARKER_SCORE_ERROR_TYPE = "markerScoreError" as const
 
+/** Narrows runtime messages to a successful score result from the service worker. */
 function isMarkerScoreResultMessage(
   msg: unknown
 ): msg is {
@@ -44,6 +45,7 @@ function isMarkerScoreResultMessage(
   )
 }
 
+/** Narrows runtime messages to a score error from the service worker. */
 function isMarkerScoreErrorMessage(
   msg: unknown
 ): msg is {
@@ -60,6 +62,7 @@ function isMarkerScoreErrorMessage(
   )
 }
 
+/** Reads data-kind from the marker button in the document. */
 function readMarkerKindFromDom(markerId: string): MarkerKind | null {
   const el = document.getElementById(markerId)
   if (!el) return null
@@ -74,6 +77,11 @@ function profileCacheKeyFromScoreData(data: unknown): string | null {
   return typeof url === "string" && url.length > 0 ? url : null
 }
 
+/**
+ * Wires marker clicks to score requests and applies service worker score/error messages to the DOM.
+ *
+ * @remarks Listens to chrome.runtime.onMessage; updates markers, cache, dashboard threshold hits, autoscore, and notifier.
+ */
 export function registerMarkerScoringBridge(): void {
   setProfileMarkerPlacedHandler(({ markerId, data }) => {
     void (async () => {

@@ -34,8 +34,9 @@ const INSTALL_POST_SCORING = {
 } satisfies typeof DEFAULT_POST_SCORING
 
 /**
- * Full `chrome.storage.local` payload for first install. Keys must stay aligned with
- * [lamp-storage-key-list.ts](lamp-storage-key-list.ts).
+ * Builds the full chrome.storage.local payload for a fresh install.
+ *
+ * @remarks Keys must stay aligned with lamp-storage-key-list.ts.
  */
 export function getExtensionInstallLocalStorageRecord(): Record<string, unknown> {
   return {
@@ -54,6 +55,11 @@ export function getExtensionInstallLocalStorageRecord(): Record<string, unknown>
   }
 }
 
+/**
+ * Writes the full first-install chrome.storage.local snapshot (idempotent use on install).
+ *
+ * @remarks Persists all keys listed in getExtensionInstallLocalStorageRecord.
+ */
 export async function writeExtensionInstallDefaultsToChrome(): Promise<void> {
   if (typeof chrome === "undefined" || !chrome.storage?.local) return
   await chrome.storage.local.set(getExtensionInstallLocalStorageRecord())

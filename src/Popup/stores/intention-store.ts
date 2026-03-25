@@ -2,6 +2,7 @@ import { create } from "zustand"
 
 import { normalizeIntentionTag } from "@/lib/normalize-intention-tag"
 
+/** Popup intention text and tags (persisted via initPopupStorage). */
 interface IntentionState {
   profileDescription: string
   postDescription: string
@@ -15,6 +16,7 @@ interface IntentionState {
   removeHeadlineTag: (tag: string) => void
 }
 
+/** Zustand store for profile/post descriptions and keyword/headline tag lists. */
 export const useIntentionStore = create<IntentionState>((set, get) => ({
   profileDescription: "",
   postDescription: "",

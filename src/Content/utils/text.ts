@@ -1,3 +1,4 @@
+/** Text content of leaf text nodes under descendants that directly hold visible text. */
 export function extractDirectTextList(node: ParentNode): string[] {
   return Array.from(node.querySelectorAll("*"))
     .filter((el) =>

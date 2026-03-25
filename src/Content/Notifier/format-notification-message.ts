@@ -20,10 +20,12 @@ export function formatScoreServiceError(raw: string): string {
   return "Couldn’t score this. Try again."
 }
 
+/** User-facing copy when Voyager/profile enrichment fails before sendMessage. */
 export function formatScoreEnrichmentError(): string {
   return "Couldn’t load profile data for scoring. Try again."
 }
 
+/** User-facing copy when chrome.runtime.sendMessage fails (e.g. extension context). */
 export function formatScoreRuntimeError(): string {
   return "Couldn’t reach Lamp. Try reloading the page."
 }

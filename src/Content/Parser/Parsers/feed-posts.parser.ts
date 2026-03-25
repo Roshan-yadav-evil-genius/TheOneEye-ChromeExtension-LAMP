@@ -27,6 +27,7 @@ export function matchesFeedPostsLocation(loc: Location): boolean {
   return p === "/" || p === "/feed" || p.startsWith("/feed/")
 }
 
+/** Extracts feed post and author profile markers from the home/feed DOM via XPath. */
 export function parseFeedPosts(): ParsedMarkerInstruction[] {
   const out: ParsedMarkerInstruction[] = []
   const postNodes = xpathOrderedSnapshot(XPATH_POST.container)

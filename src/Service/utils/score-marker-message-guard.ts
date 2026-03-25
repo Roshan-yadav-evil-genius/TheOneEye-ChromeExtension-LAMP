@@ -3,6 +3,7 @@ import {
   type ScoreMarkerInboundMessage,
 } from "../types/score-marker-messages.ts"
 
+/** Narrows unknown runtime messages to a valid scoreMarker request shape. */
 export function isScoreMarkerMessage(
   msg: unknown
 ): msg is ScoreMarkerInboundMessage {

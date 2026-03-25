@@ -12,11 +12,17 @@ const SCORE_API_HEADERS = {
   Authorization: "Api-Key PjLdurRlGML4dxrTH-hJew0j-rgJ2MwWzDBRczrrlRs",
 } as const
 
+/** Wraps workflow input in the backend’s expected `{ input, timeout }` envelope. */
 const TheOneEyeServerCompatiblePayload = (payload: unknown) => ({
   input: payload,
   timeout: 30000,
 })
 
+/**
+ * POSTs to The One Eye workflow execute endpoint and returns a 0–100 integer score.
+ *
+ * @remarks Network fetch; throws on non-OK HTTP or invalid JSON score; normalizes backend 0..1 to 0..100.
+ */
 async function executeScoringWorkflow(
   workflowId: string,
   input: unknown
@@ -73,8 +79,9 @@ async function executeScoringWorkflow(
 }
 
 /**
- * Sends the full enriched profile payload as workflow `input` (wrapped by
- * TheOneEyeServerCompatiblePayload).
+ * Runs the profile scoring workflow using the enriched Voyager + DOM payload.
+ *
+ * @remarks Network: same as executeScoringWorkflow for PROFILE_WORKFLOW_ID.
  */
 export async function scoreLinkedInProfile(
   profilePayload: EnrichedLinkedInProfilePayload
@@ -82,6 +89,11 @@ export async function scoreLinkedInProfile(
   return executeScoringWorkflow(PROFILE_WORKFLOW_ID, profilePayload)
 }
 
+/**
+ * Runs the post scoring workflow with post data and intention fields.
+ *
+ * @remarks `settings` is accepted for API symmetry; post workflow input uses data + intention only. Network fetch.
+ */
 export async function scoreLinkedInPost(
   data: Post,
   intention: ScoringIntentionSnapshot,

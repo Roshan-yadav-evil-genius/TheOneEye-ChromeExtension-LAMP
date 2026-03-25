@@ -34,6 +34,7 @@ const EMPTY_COPY: Record<
   },
 }
 
+/** Dashboard sub-views: threshold hit lists, qualified list, stats, and storage usage. */
 export function DashboardPanel() {
   const view = usePopupNavStore((s) => s.dashboardView)
   const {

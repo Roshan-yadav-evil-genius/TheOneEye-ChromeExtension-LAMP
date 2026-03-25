@@ -3,6 +3,7 @@ import { Tooltip as TooltipPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 
+/** Radix tooltip primitives styled for the popup theme. */
 function TooltipProvider({
   delayDuration = 200,
   ...props

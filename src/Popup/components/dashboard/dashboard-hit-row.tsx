@@ -14,6 +14,7 @@ type Props = {
   className?: string
 }
 
+/** One dashboard list row: profile summary, open profile, qualify, and dismiss actions. */
 export function DashboardHitRow({
   profile,
   onDrop,

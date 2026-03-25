@@ -4,6 +4,7 @@ import { PopupLayout } from "@/components/layout/popup-layout"
 import { MainPanel } from "@/components/main-panel"
 import { initPopupStorage } from "@/lib/popup-storage-sync"
 
+/** Root popup view: wires chrome storage sync and renders the shell + main panel. */
 export function App() {
   useEffect(() => initPopupStorage(), [])
 

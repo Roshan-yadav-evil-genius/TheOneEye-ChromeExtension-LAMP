@@ -1,3 +1,6 @@
+/**
+ * Public Voyager and enrichment exports for profile scoring in content scripts.
+ */
 export {
   buildEnrichedLinkedInProfilePayload,
   buildEnrichedLinkedInProfilePayloadForContent,

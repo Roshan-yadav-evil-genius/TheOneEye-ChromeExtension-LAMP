@@ -20,6 +20,7 @@ const TABS: { id: PrimaryTab; label: string; icon: typeof LayoutGrid }[] = [
   { id: "report", label: "Report", icon: CircleAlert },
 ]
 
+/** Primary tab bar and branding for the extension popup. */
 export function PopupTopNav() {
   const primary = usePopupNavStore((s) => s.primary)
   const setPrimary = usePopupNavStore((s) => s.setPrimary)

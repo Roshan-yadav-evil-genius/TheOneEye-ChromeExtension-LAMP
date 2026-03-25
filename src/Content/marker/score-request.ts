@@ -8,6 +8,7 @@ import { tryRestoreProfileMarkerFromCache } from "./restore-from-cache.ts"
 import type { MarkerInteractionPayload } from "../types.ts"
 import { buildEnrichedLinkedInProfilePayloadForContent } from "../VoyagerApi/index.ts"
 
+/** Restores profile score from cache or sets marker to error. */
 async function restoreCachedProfileScoreOrError(markerId: string): Promise<void> {
   const restored = await tryRestoreProfileMarkerFromCache(markerId)
   if (!restored) {
@@ -15,8 +16,14 @@ async function restoreCachedProfileScoreOrError(markerId: string): Promise<void>
   }
 }
 
+/** Runtime message type sent to the service worker to score a marker. */
 export const SCORE_MARKER_MESSAGE_TYPE = "scoreMarker" as const
 
+/**
+ * Starts scoring: sets loading, enriches profile if needed, then sendMessage to the service worker.
+ *
+ * @remarks On send or enrichment failure, tries cache restore for profiles, shows notifier, and calls onSendFailed.
+ */
 export function requestMarkerScore(
   payload: MarkerInteractionPayload,
   options?: { onSendFailed?: () => void }

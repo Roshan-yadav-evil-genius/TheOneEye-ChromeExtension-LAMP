@@ -2,6 +2,11 @@ import { buildVoyagerHeaders } from "./voyager-headers.ts"
 
 const VOYAGER_GRAPHQL_BASE = "https://www.linkedin.com/voyager/api/graphql"
 
+/**
+ * Fetches a profile activity GraphQL document by queryId and profile URN.
+ *
+ * @remarks Authenticated fetch to LinkedIn Voyager; throws on non-OK response.
+ */
 export async function fetchActivityByQueryId(
   profileUrn: string,
   queryId: string,

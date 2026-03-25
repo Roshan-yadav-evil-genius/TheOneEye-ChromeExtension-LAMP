@@ -77,6 +77,11 @@ function isEditableTarget(target: EventTarget | null) {
   return false
 }
 
+/**
+ * Applies theme class on `document.documentElement` and exposes theme context (localStorage optional).
+ *
+ * @remarks Listens for system theme changes when set to system; supports keyboard cycle shortcut.
+ */
 export function ThemeProvider({
   children,
   defaultTheme = "system",

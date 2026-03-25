@@ -16,12 +16,14 @@ import {
   parseSearchProfiles,
 } from "./search-profiles.parser.ts"
 
+/** One page-specific parser: URL predicate plus parse producing marker instructions. */
 export type ParserRegistryEntry = {
   id: string
   matchesLocation: (loc: Location) => boolean
   parse: () => ParsedMarkerInstruction[]
 }
 
+/** Ordered list of LinkedIn page parsers used by the content script sync loop. */
 export const REGISTERED_PARSERS: readonly ParserRegistryEntry[] = [
   {
     id: "mynetwork-profiles",

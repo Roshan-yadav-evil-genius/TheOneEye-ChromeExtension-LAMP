@@ -9,10 +9,18 @@ import type {
   Profile,
 } from "../types.ts"
 
+/**
+ * In-page scoring marker UI: create/remove buttons, keep payloads, drive default/loading/score/error visuals.
+ *
+ * @remarks Mutates the DOM; coordinates with autoscore via disabled state when a kind is auto-scoring.
+ */
+
+/** Layout options for a marker host (floating overlay vs inline). */
 export interface TheOneEyeOptions {
   float?: boolean
 }
 
+/** Discriminated options for placing either a profile or post marker. */
 export type PlaceScoringButtonOptions =
   | (TheOneEyeOptions & { kind: "profile"; data: Profile })
   | (TheOneEyeOptions & { kind: "post"; data: Post })
@@ -55,6 +63,7 @@ let profileMarkerPlacedHandler: ((
   payload: ProfileMarkerPlacedPayload
 ) => void) | null = null
 
+/** Registers a callback invoked when a profile marker is placed (cache hydration). */
 export function setProfileMarkerPlacedHandler(
   handler: ((payload: ProfileMarkerPlacedPayload) => void) | null
 ): void {
@@ -69,6 +78,7 @@ function defaultInteractionHandler(payload: MarkerInteractionPayload): void {
   })
 }
 
+/** Registers the handler for marker button clicks (e.g. scoring bridge). */
 export function setMarkerInteractionHandler(
   handler: ((payload: MarkerInteractionPayload) => void) | null
 ): void {
@@ -127,6 +137,7 @@ export function getMarkerAutoscoreFlags(): {
   }
 }
 
+/** Looks up the interaction payload stored for a marker button by DOM id. */
 export function getMarkerPayloadForId(
   id: string
 ): MarkerInteractionPayload | null {
@@ -317,6 +328,11 @@ function isMarkerButton(el: Element): el is HTMLButtonElement {
   )
 }
 
+/**
+ * Applies a visual update to the marker button with the given id.
+ *
+ * @remarks DOM update; cancels any in-flight spinner animation before switching state.
+ */
 export function updateMarkerState(id: string, update: MarkerVisualUpdate): void {
   const el = document.getElementById(id)
   if (!el || !isMarkerButton(el)) return

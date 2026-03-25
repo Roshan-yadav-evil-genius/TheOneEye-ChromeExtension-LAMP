@@ -8,8 +8,11 @@ import {
   scoreLinkedInPost,
   scoreLinkedInProfile,
 } from "./utils/score-marker-scorers.ts"
-
-
+/**
+ * Subscribes to `scoreMarker` runtime messages and runs the async scoring pipeline for the sender tab.
+ *
+ * @remarks Loads settings and intention from chrome.storage, calls the scoring API, sends result/error back to the tab, increments stats, and invokes sendResponse. Returns true from the listener to keep the message channel open for async sendResponse.
+ */
 export function registerScoreMarkerListener(): void {
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (!isScoreMarkerMessage(message)) {

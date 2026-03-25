@@ -1,3 +1,6 @@
+/**
+ * In-page toast stack: container, formatters for score errors, and notify helpers.
+ */
 export { ensureNotificationContainer } from "./ensure-notification-container.ts"
 export {
   formatScoreEnrichmentError,

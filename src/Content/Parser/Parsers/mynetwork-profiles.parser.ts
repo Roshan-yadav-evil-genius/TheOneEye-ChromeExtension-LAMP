@@ -15,6 +15,7 @@ export function matchesMyNetworkLocation(loc: Location): boolean {
   return matchesExtensionHost(loc) && loc.pathname.includes("/mynetwork")
 }
 
+/** Extracts profile card markers from My Network invitation/connection lists. */
 export function parseMyNetworkProfiles(): ParsedMarkerInstruction[] {
   const out: ParsedMarkerInstruction[] = []
   const profiles = xpathOrderedSnapshot(XPATH_MYNETWORK.profile)

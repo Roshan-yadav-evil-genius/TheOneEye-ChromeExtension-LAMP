@@ -13,6 +13,7 @@ const XPATH_SEARCH_RESULTS_PROFILES = {
   nameLinkParent: ".//a[contains(@href,'/in/')]/parent::p",
 } as const
 
+/** Headline text from the sibling node after the name paragraph in a search result card. */
 function extractSearchResultHeadline(profileWrapper: ParentNode): string | null {
   const nameParagraph = xpathFirstNode(
     XPATH_SEARCH_RESULTS_PROFILES.nameLinkParent,
@@ -31,6 +32,7 @@ export function matchesSearchProfilesLocation(loc: Location): boolean {
   )
 }
 
+/** Extracts profile markers from people (and mixed) LinkedIn search result cards. */
 export function parseSearchProfiles(): ParsedMarkerInstruction[] {
   const out: ParsedMarkerInstruction[] = []
   const profiles = xpathOrderedSnapshot(

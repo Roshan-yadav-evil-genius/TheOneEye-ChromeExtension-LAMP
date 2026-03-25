@@ -31,6 +31,7 @@ const VARIANT_STYLE: Record<
   },
 }
 
+/** Applies toast class names and inline styles for a notifier variant. */
 function styleToast(el: HTMLDivElement, type: NotifierType): void {
   const v = VARIANT_STYLE[type]
   el.className = `${NOTIFICATION_TOAST_CLASS} ${NOTIFICATION_TOAST_CLASS}--${type}`
@@ -81,18 +82,22 @@ export function showNotifier(
   window.setTimeout(removeSoon, NOTIFICATION_DURATION_MS)
 }
 
+/** Shows an info-styled toast. */
 export function notifyInfo(message: string): void {
   showNotifier(message, "info")
 }
 
+/** Shows an error-styled toast. */
 export function notifyError(message: string): void {
   showNotifier(message, "error")
 }
 
+/** Shows a success-styled toast. */
 export function notifySuccess(message: string): void {
   showNotifier(message, "success")
 }
 
+/** Shows a warning-styled toast. */
 export function notifyWarning(message: string): void {
   showNotifier(message, "warning")
 }

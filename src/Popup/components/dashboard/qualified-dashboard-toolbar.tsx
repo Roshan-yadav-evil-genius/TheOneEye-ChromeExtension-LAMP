@@ -10,6 +10,7 @@ type Props = {
   copyDisabled: boolean
 }
 
+/** Qualified list header with hint text and copy-all-CSV control. */
 export function QualifiedDashboardToolbar({
   hint,
   profiles,

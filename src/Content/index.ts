@@ -7,6 +7,7 @@ import { registerMarkerScoringBridge } from "./marker/scoring-bridge.ts"
 import { startLinkedInPageScan } from "./scanner/scanner.ts"
 import { matchesExtensionHost } from "./utils/url.ts"
 
+/** Registers scoring bridge, autoscore, and LinkedIn scan when the URL matches the extension host. */
 function init(): void {
   if (!matchesExtensionHost(location)) return
   registerMarkerScoringBridge()

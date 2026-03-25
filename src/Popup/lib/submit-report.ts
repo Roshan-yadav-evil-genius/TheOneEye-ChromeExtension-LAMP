@@ -8,6 +8,7 @@ const REPORT_API_HEADERS = {
   Authorization: "Api-Key PjLdurRlGML4dxrTH-hJew0j-rgJ2MwWzDBRczrrlRs",
 } as const
 
+/** Wraps report payload for workflow execute API shape. */
 const toTheOneEyeServerPayload = (payload: unknown) => ({
   input: payload,
   timeout: 30000,
@@ -26,6 +27,11 @@ async function getCurrentPageUrl(): Promise<string> {
   }
 }
 
+/**
+ * Submits a user report to The One Eye workflow API and returns the server message string.
+ *
+ * @remarks Network POST; throws on HTTP or invalid response body.
+ */
 export async function submitReportIssue(
   payload: ReportIssuePayload
 ): Promise<string> {

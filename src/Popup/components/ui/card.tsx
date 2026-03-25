@@ -2,6 +2,7 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+/** shadcn-style card surface and header/content/title slots. */
 function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div

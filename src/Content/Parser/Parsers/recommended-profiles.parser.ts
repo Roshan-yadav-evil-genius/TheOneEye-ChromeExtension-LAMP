@@ -24,6 +24,7 @@ export function matchesFeedRecommendedLocation(loc: Location): boolean {
   return p === "/" || p === "/feed" || p.startsWith("/feed/")
 }
 
+/** Extracts “recommended for you” profile card markers from the main feed DOM. */
 export function parseRecommendedProfiles(): ParsedMarkerInstruction[] {
   const out: ParsedMarkerInstruction[] = []
   const profiles = xpathOrderedSnapshot(XPATH_RECOMMENDED.profile)

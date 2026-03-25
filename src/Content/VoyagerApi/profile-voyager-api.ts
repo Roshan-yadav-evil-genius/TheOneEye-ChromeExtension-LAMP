@@ -3,6 +3,11 @@ import { buildVoyagerHeaders } from "./voyager-headers.ts"
 const VOYAGER_DECORATION_ID =
   "com.linkedin.voyager.dash.deco.identity.profile.FullProfileWithEntities-91"
 
+/**
+ * Loads dash profile JSON for a public `/in/{id}` handle from Voyager.
+ *
+ * @remarks Authenticated GET; throws on non-OK response.
+ */
 export async function fetchProfileVoyagerData(
   publicIdentifier: string
 ): Promise<unknown> {
@@ -27,6 +32,7 @@ export async function fetchProfileVoyagerData(
   return data
 }
 
+/** Extracts `urn:li:fsd_profile:…` from a profile Voyager JSON response. */
 export function getProfileUrnFromVoyagerResponse(response: unknown): string | null {
   const r = response as {
     data?: {

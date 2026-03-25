@@ -3,6 +3,7 @@ import { Slider as SliderPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 
+/** Radix range slider styled for threshold controls. */
 function Slider({
   className,
   defaultValue,

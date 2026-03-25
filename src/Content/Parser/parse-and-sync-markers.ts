@@ -2,6 +2,7 @@ import { placeScoringButton, removeScoringButton } from "../marker/marker.ts"
 import type { ParsedMarkerInstruction, ScoringSectionFlags } from "../types.ts"
 import { REGISTERED_PARSERS } from "./Parsers/parser-registry.ts"
 
+/** Runs all registered parsers whose URL matcher passes and flattens their instructions. */
 export function collectParsedMarkerInstructions(
   loc: Location = location
 ): ParsedMarkerInstruction[] {
@@ -10,6 +11,7 @@ export function collectParsedMarkerInstructions(
   )
 }
 
+/** Places or removes markers on each instruction according to section enable flags. */
 export function applyMarkerInstructions(
   section: ScoringSectionFlags,
   instructions: ParsedMarkerInstruction[]
@@ -45,6 +47,7 @@ export function applyMarkerInstructions(
   }
 }
 
+/** Parses the current page and applies markers for the given section flags. */
 export function runParseAndSyncMarkers(
   section: ScoringSectionFlags,
   loc: Location = location

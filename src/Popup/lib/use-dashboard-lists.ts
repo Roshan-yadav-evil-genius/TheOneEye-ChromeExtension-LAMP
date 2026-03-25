@@ -9,6 +9,11 @@ import {
   type DashboardListsSnapshot,
 } from "@/lib/dashboard-lists-storage"
 
+/**
+ * Live dashboard lists from chrome.storage with refresh helpers for drop/qualify actions.
+ *
+ * @remarks Subscribes to chrome.storage.onChanged for DASHBOARD_STORAGE_KEYS.
+ */
 export function useDashboardLists(): {
   postHits: DashboardListsSnapshot["postHits"]
   profileHits: DashboardListsSnapshot["profileHits"]

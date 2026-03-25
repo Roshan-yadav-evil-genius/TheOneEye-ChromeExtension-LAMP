@@ -18,6 +18,7 @@ import {
 } from "@/stores/scoring-settings-store"
 import { useStatsStore } from "@/stores/stats-store"
 
+/** Pushes the current intention store snapshot to chrome.storage.local. */
 function persistIntentionNow(): void {
   const { profileDescription, postDescription, keywords, headlineTags } =
     useIntentionStore.getState()
@@ -29,11 +30,13 @@ function persistIntentionNow(): void {
   })
 }
 
+/** Pushes the current scoring settings store snapshot to chrome.storage.local. */
 function persistScoringNow(): void {
   const { profile, post } = useScoringSettingsStore.getState()
   void writeScoringSettingsToChrome({ profile, post })
 }
 
+/** Reloads lifetime stats and storage byte usage into the stats store. */
 async function refreshStatsFromChrome(): Promise<void> {
   const [blob, bytes] = await Promise.all([
     readStatsLifetimeFromChrome(),
@@ -44,7 +47,9 @@ async function refreshStatsFromChrome(): Promise<void> {
 }
 
 /**
- * Loads persisted popup slices, applies business rules, then persists on every store change.
+ * Hydrates intention and scoring stores from chrome, clamps rules, then subscribes for persistence.
+ *
+ * @returns Teardown that cancels async work, unsubscribes stores, and removes storage listeners.
  */
 export function initPopupStorage(): () => void {
   let cancelled = false
