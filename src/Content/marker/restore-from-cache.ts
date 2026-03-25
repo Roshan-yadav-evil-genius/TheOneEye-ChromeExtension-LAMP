@@ -1,6 +1,6 @@
-import { getMarkerPayloadForId, updateMarkerState } from "./Marker/Marker.ts"
-import { getScoringSettingsFromChrome } from "../shared/get-scoring-settings-from-chrome.ts"
-import { getCachedProfileScore } from "../shared/profile-score-cache.ts"
+import { getMarkerPayloadForId, updateMarkerState } from "./marker.ts"
+import { getScoringSettingsFromChrome } from "../../shared/get-scoring-settings-from-chrome.ts"
+import { getCachedProfileScore } from "../../shared/profile-score-cache.ts"
 
 /**
  * If the marker is a profile, cache is enabled, and a score exists in storage

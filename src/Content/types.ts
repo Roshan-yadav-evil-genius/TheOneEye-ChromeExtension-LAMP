@@ -14,12 +14,20 @@ export interface Post {
   }
 }
 
-export interface LinkedInParseResult {
-  mynetworkProfiles: Profile[]
-  recommendedProfiles: Profile[]
-  searchResultsProfiles: Profile[]
-  posts: Post[]
-}
+/** One marker attachment produced by a parser; executor applies section flags. */
+export type ParsedMarkerInstruction =
+  | {
+      kind: "profile"
+      anchor: HTMLElement
+      data: Profile
+      float?: boolean
+    }
+  | {
+      kind: "post"
+      anchor: HTMLElement
+      data: Post
+      float?: boolean
+    }
 
 /** Gating for marker placement from scoring settings `sectionEnabled`. */
 export type ScoringSectionFlags = {

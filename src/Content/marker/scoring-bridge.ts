@@ -1,23 +1,23 @@
-import { appendDashboardThresholdHit } from "./append-dashboard-threshold-hit.ts"
+import { appendDashboardThresholdHit } from "../dashboard/append-threshold-hit.ts"
 import {
   MARKER_KIND_ATTRIBUTE,
   setMarkerInteractionHandler,
   setProfileMarkerPlacedHandler,
   updateMarkerState,
-} from "./Marker/Marker.ts"
+} from "./marker.ts"
 import {
   formatScoreServiceError,
   notifyError,
-} from "./Notifier/index.ts"
-import { notifyAutoscoreScoreFinished } from "./marker-autoscore.ts"
+} from "../Notifier/index.ts"
+import { notifyAutoscoreScoreFinished } from "./autoscore.ts"
 import { requestMarkerScore } from "./score-request.ts"
-import { tryRestoreProfileMarkerFromCache } from "./try-restore-profile-marker-from-cache.ts"
-import type { MarkerInteractionPayload, MarkerKind } from "./types.ts"
-import { getScoringSettingsFromChrome } from "../shared/get-scoring-settings-from-chrome.ts"
+import { tryRestoreProfileMarkerFromCache } from "./restore-from-cache.ts"
+import type { MarkerInteractionPayload, MarkerKind } from "../types.ts"
+import { getScoringSettingsFromChrome } from "../../shared/get-scoring-settings-from-chrome.ts"
 import {
   getCachedProfileScore,
   setCachedProfileScore,
-} from "../shared/profile-score-cache.ts"
+} from "../../shared/profile-score-cache.ts"
 
 const MARKER_SCORE_RESULT_TYPE = "markerScoreResult" as const
 const MARKER_SCORE_ERROR_TYPE = "markerScoreError" as const

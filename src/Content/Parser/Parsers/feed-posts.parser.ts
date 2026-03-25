@@ -1,15 +1,34 @@
-import { XPATH_POST } from "../constants.ts"
-import { placeScoringButton, removeScoringButton } from "../Marker/Marker.ts"
-import type { Post, Profile, ScoringSectionFlags } from "../types.ts"
+import type { ParsedMarkerInstruction, Post, Profile } from "../../types.ts"
 import {
   collectImgSrcsFromSnapshot,
   xpathFirstNode,
   xpathOrderedSnapshot,
-} from "../utils/dom.ts"
-import { parseRelativeTimeToDate } from "../utils/time.ts"
+} from "../../utils/dom.ts"
+import { parseRelativeTimeToDate } from "../../utils/time.ts"
+import { matchesExtensionHost } from "../../utils/url.ts"
 
-export function parsePosts(section: ScoringSectionFlags): Post[] {
-  const extractedPosts: Post[] = []
+const XPATH_POST = {
+  container:
+    "//div[count(a[contains(@href,'/in/')]) = 2]/parent::div[*[1][self::h2] and *[2][self::div] and p ]",
+  postBody: "./p",
+  authorProfileLink: "./a[1]",
+  authorProfileImg: "./a[1]//img",
+  authorName: "./a[2]/div/div[1]//p",
+  authorRows: "./a[2]/div/div",
+  individualHeadline: "./a[2]/div/div[2]/p",
+  individualTime: "./a[2]/div/div[3]/p",
+  companyShortTime: "./a[2]/div/div[2]/p",
+} as const
+
+/** Home / feed routes; XPath only matches real feed update rows. */
+export function matchesFeedPostsLocation(loc: Location): boolean {
+  if (!matchesExtensionHost(loc)) return false
+  const p = loc.pathname.replace(/\/+$/, "") || "/"
+  return p === "/" || p === "/feed" || p.startsWith("/feed/")
+}
+
+export function parseFeedPosts(): ParsedMarkerInstruction[] {
+  const out: ParsedMarkerInstruction[] = []
   const postNodes = xpathOrderedSnapshot(XPATH_POST.container)
 
   for (let i = 0; i < postNodes.snapshotLength; i++) {
@@ -28,19 +47,6 @@ export function parsePosts(section: ScoringSectionFlags): Post[] {
       : []
 
     if (!authorWrapper) {
-      extractedPosts.push({
-        publisher: {
-          avatar: [],
-          name: "",
-          url: "",
-          headline: "",
-        },
-        post: {
-          content: postBodyHtml,
-          image: attachments,
-          postedDateIso: null,
-        },
-      })
       continue
     }
 
@@ -109,29 +115,21 @@ export function parsePosts(section: ScoringSectionFlags): Post[] {
 
     if (!(profileUrl && profileName && postBody)) continue
 
-    if (section.post) {
-      placeScoringButton(postBody, {
-        float: false,
-        kind: "post",
-        data: postData,
-      })
-    } else {
-      removeScoringButton(postBody, { float: false, kind: "post" })
-    }
+    out.push({
+      kind: "post",
+      anchor: postBody,
+      data: postData,
+      float: false,
+    })
 
     if (authorWrapper instanceof HTMLElement) {
-      if (section.profile) {
-        placeScoringButton(authorWrapper, {
-          kind: "profile",
-          data: publisher,
-        })
-      } else {
-        removeScoringButton(authorWrapper, { kind: "profile" })
-      }
+      out.push({
+        kind: "profile",
+        anchor: authorWrapper,
+        data: publisher,
+      })
     }
-
-    extractedPosts.push(postData)
   }
 
-  return extractedPosts
+  return out
 }

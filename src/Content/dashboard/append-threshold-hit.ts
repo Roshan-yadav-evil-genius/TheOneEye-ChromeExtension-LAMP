@@ -1,6 +1,6 @@
-import { isExtensionContextInvalidatedError } from "../shared/chrome-context-errors.ts"
-import type { DashboardThresholdHit } from "../shared/dashboard-storage-types.ts"
-import type { MarkerKind, Post, Profile } from "./types.ts"
+import { isExtensionContextInvalidatedError } from "../../shared/chrome-context-errors.ts"
+import type { DashboardThresholdHit } from "../../shared/dashboard-storage-types.ts"
+import type { MarkerKind, Post, Profile } from "../types.ts"
 
 /** Keep in sync with shared/dashboard-storage-keys.ts (content bundle avoids shared key imports). */
 const DASHBOARD_THRESHOLD_HITS = "dashboard_threshold_hits"

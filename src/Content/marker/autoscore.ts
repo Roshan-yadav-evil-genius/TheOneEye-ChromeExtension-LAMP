@@ -3,18 +3,18 @@ import {
   clearAutoscoreBusyIfMatches,
   getAutoscoreBusyMarkerId,
   setAutoscoreBusyMarkerId,
-} from "./marker-autoscore-busy.ts"
+} from "./autoscore-busy.ts"
 import {
   getMarkerAutoscoreFlags,
   getMarkerPayloadForId,
   MARKER_KIND_ATTRIBUTE,
   MARKER_STATE_ATTRIBUTE,
   setMarkerAutoscoreFlags,
-} from "./Marker/Marker.ts"
-import { runAllLinkedInParsers } from "./Parser/index.ts"
+} from "./marker.ts"
 import { requestMarkerScore } from "./score-request.ts"
-import type { MarkerKind, ScoringSectionFlags } from "./types.ts"
-import { getScoringSettingsFromChrome } from "../shared/get-scoring-settings-from-chrome.ts"
+import type { MarkerKind, ScoringSectionFlags } from "../types.ts"
+import { runParseAndSyncMarkers } from "../Parser/index.ts"
+import { getScoringSettingsFromChrome } from "../../shared/get-scoring-settings-from-chrome.ts"
 
 /** Must match [scoring-storage-keys.ts](../../shared/scoring-storage-keys.ts). */
 const SETTINGS_PROFILE_SCORING = "settings_profile_scoring" as const
@@ -84,7 +84,7 @@ export async function registerMarkerAutoscore(): Promise<void> {
       }
       void refreshScoringFromStorage()
         .then((section) => {
-          runAllLinkedInParsers(section)
+          runParseAndSyncMarkers(section)
           tickAutoscoreAfterScan()
         })
         .catch(() => {})

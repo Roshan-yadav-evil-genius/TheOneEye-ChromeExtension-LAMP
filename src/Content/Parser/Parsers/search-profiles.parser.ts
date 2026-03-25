@@ -1,8 +1,17 @@
-import { XPATH_SEARCH_RESULTS_PROFILES } from "../constants.ts"
-import { placeScoringButton, removeScoringButton } from "../Marker/Marker.ts"
-import type { Profile, ScoringSectionFlags } from "../types.ts"
-import { xpathFirstNode, xpathOrderedSnapshot } from "../utils/dom.ts"
-import { isValidLinkedInProfileUrl, tryParseUrl } from "../utils/url.ts"
+import type { ParsedMarkerInstruction, Profile } from "../../types.ts"
+import { xpathFirstNode, xpathOrderedSnapshot } from "../../utils/dom.ts"
+import {
+  isValidLinkedInProfileUrl,
+  matchesExtensionHost,
+  tryParseUrl,
+} from "../../utils/url.ts"
+
+const XPATH_SEARCH_RESULTS_PROFILES = {
+  profileWrapper: "//a[contains(@href,'/in/') and .//a]",
+  profileLink: ".//a[contains(@href,'/in/')]",
+  profileImg: ".//img",
+  nameLinkParent: ".//a[contains(@href,'/in/')]/parent::p",
+} as const
 
 function extractSearchResultHeadline(profileWrapper: ParentNode): string | null {
   const nameParagraph = xpathFirstNode(
@@ -15,10 +24,15 @@ function extractSearchResultHeadline(profileWrapper: ParentNode): string | null 
   return text || null
 }
 
-export function parseSearchResultsProfiles(
-  section: ScoringSectionFlags
-): Profile[] {
-  const parsedProfiles: Profile[] = []
+/** People (and mixed) search results pages. */
+export function matchesSearchProfilesLocation(loc: Location): boolean {
+  return (
+    matchesExtensionHost(loc) && loc.pathname.includes("/search/results")
+  )
+}
+
+export function parseSearchProfiles(): ParsedMarkerInstruction[] {
+  const out: ParsedMarkerInstruction[] = []
   const profiles = xpathOrderedSnapshot(
     XPATH_SEARCH_RESULTS_PROFILES.profileWrapper
   )
@@ -60,13 +74,8 @@ export function parseSearchResultsProfiles(
       headline,
     }
 
-    if (section.profile) {
-      placeScoringButton(node, { kind: "profile", data: profile })
-    } else {
-      removeScoringButton(node, { kind: "profile" })
-    }
-    parsedProfiles.push(profile)
+    out.push({ kind: "profile", anchor: node, data: profile })
   }
 
-  return parsedProfiles
+  return out
 }

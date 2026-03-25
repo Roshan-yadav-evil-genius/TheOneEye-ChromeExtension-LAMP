@@ -1,17 +1,31 @@
+import type { ParsedMarkerInstruction, Profile } from "../../types.ts"
+import { xpathFirstNode, xpathOrderedSnapshot } from "../../utils/dom.ts"
+import { isValidLinkedInProfileUrl, matchesExtensionHost } from "../../utils/url.ts"
+
 /**
  * Recommended feed profile cards (two /in/ links, avatar or ghost name).
- * Dedicated /in/... profile page parsing can be added here or in a separate module later.
+ * XPath co-located with this parser.
  */
-import { XPATH_RECOMMENDED } from "../constants.ts"
-import { placeScoringButton, removeScoringButton } from "../Marker/Marker.ts"
-import type { Profile, ScoringSectionFlags } from "../types.ts"
-import { xpathFirstNode, xpathOrderedSnapshot } from "../utils/dom.ts"
-import { isValidLinkedInProfileUrl } from "../utils/url.ts"
+const XPATH_RECOMMENDED = {
+  profile:
+    "//div[   count(.//a[contains(@href,'/in/')]) = 2   and   .//a[contains(@href,'/in/')][.//img or .//div[contains(@class,'ghost-person')]]   and   not(.//div[     count(.//a[contains(@href,'/in/')]) = 2     and     .//a[contains(@href,'/in/')][.//img or .//div[contains(@class,'ghost-person')]]   ]) ]",
+  links: ".//a[contains(@href,'/in/')]",
+  avatarImg: ".//a[contains(@href,'/in/')][1]//img",
+  ghostName:
+    ".//a[contains(@href,'/in/')][1]//div[contains(@class,'ghost-person')]",
+  headline:
+    ".//a[contains(@href,'/in/') and not(.//img or .//div[contains(@class,'ghost-person')])]/*[2]",
+} as const
 
-export function parseRecommendedProfiles(
-  section: ScoringSectionFlags
-): Profile[] {
-  const parsedProfiles: Profile[] = []
+/** Main feed / home where recommended people cards appear. */
+export function matchesFeedRecommendedLocation(loc: Location): boolean {
+  if (!matchesExtensionHost(loc)) return false
+  const p = loc.pathname.replace(/\/+$/, "") || "/"
+  return p === "/" || p === "/feed" || p.startsWith("/feed/")
+}
+
+export function parseRecommendedProfiles(): ParsedMarkerInstruction[] {
+  const out: ParsedMarkerInstruction[] = []
   const profiles = xpathOrderedSnapshot(XPATH_RECOMMENDED.profile)
 
   for (let i = 0; i < profiles.snapshotLength; i++) {
@@ -64,13 +78,8 @@ export function parseRecommendedProfiles(
       headline,
     }
 
-    if (section.profile) {
-      placeScoringButton(node, { kind: "profile", data: profile })
-    } else {
-      removeScoringButton(node, { kind: "profile" })
-    }
-    parsedProfiles.push(profile)
+    out.push({ kind: "profile", anchor: node, data: profile })
   }
 
-  return parsedProfiles
+  return out
 }

@@ -1,5 +1,5 @@
-import { THE_ONE_EYE_MARKER_CLASS } from "../constants.ts"
-import { clearAutoscoreBusyIfMatches } from "../marker-autoscore-busy.ts"
+import { THE_ONE_EYE_MARKER_CLASS } from "./constants.ts"
+import { clearAutoscoreBusyIfMatches } from "./autoscore-busy.ts"
 import type {
   MarkerDomState,
   MarkerInteractionPayload,

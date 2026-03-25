@@ -1,4 +1,4 @@
-import type { MarkerKind } from "./types.ts"
+import type { MarkerKind } from "../types.ts"
 
 let busyProfileMarkerId: string | null = null
 let busyPostMarkerId: string | null = null

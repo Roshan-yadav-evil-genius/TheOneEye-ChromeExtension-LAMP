@@ -1,12 +1,12 @@
-import { updateMarkerState } from "./Marker/Marker.ts"
+import { updateMarkerState } from "./marker.ts"
 import {
   formatScoreEnrichmentError,
   formatScoreRuntimeError,
   notifyError,
-} from "./Notifier/index.ts"
-import { tryRestoreProfileMarkerFromCache } from "./try-restore-profile-marker-from-cache.ts"
-import type { MarkerInteractionPayload } from "./types.ts"
-import { buildEnrichedLinkedInProfilePayloadForContent } from "./VoyagerApi/index.ts"
+} from "../Notifier/index.ts"
+import { tryRestoreProfileMarkerFromCache } from "./restore-from-cache.ts"
+import type { MarkerInteractionPayload } from "../types.ts"
+import { buildEnrichedLinkedInProfilePayloadForContent } from "../VoyagerApi/index.ts"
 
 async function restoreCachedProfileScoreOrError(markerId: string): Promise<void> {
   const restored = await tryRestoreProfileMarkerFromCache(markerId)
