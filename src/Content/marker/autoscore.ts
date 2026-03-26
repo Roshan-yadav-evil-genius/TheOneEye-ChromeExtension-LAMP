@@ -3,23 +3,24 @@ import {
   clearAutoscoreBusyIfMatches,
   getAutoscoreBusyMarkerId,
   setAutoscoreBusyMarkerId,
-} from "./marker-autoscore-busy.ts"
+} from "./autoscore-busy.ts"
 import {
   getMarkerAutoscoreFlags,
   getMarkerPayloadForId,
   MARKER_KIND_ATTRIBUTE,
   MARKER_STATE_ATTRIBUTE,
   setMarkerAutoscoreFlags,
-} from "./Marker/Marker.ts"
-import { runAllLinkedInParsers } from "./Parser/index.ts"
+} from "./marker.ts"
 import { requestMarkerScore } from "./score-request.ts"
-import type { MarkerKind, ScoringSectionFlags } from "./types.ts"
-import { getScoringSettingsFromChrome } from "../shared/get-scoring-settings-from-chrome.ts"
+import type { MarkerKind, ScoringSectionFlags } from "../types.ts"
+import { runParseAndSyncMarkers } from "../Parser/index.ts"
+import { getScoringSettingsFromChrome } from "../../shared/get-scoring-settings-from-chrome.ts"
 
 /** Must match [scoring-storage-keys.ts](../../shared/scoring-storage-keys.ts). */
 const SETTINGS_PROFILE_SCORING = "settings_profile_scoring" as const
 const SETTINGS_POST_SCORING = "settings_post_scoring" as const
 
+/** Releases autoscore busy state for a marker and tries to start the next auto-score for that kind. */
 export function notifyAutoscoreScoreFinished(
   markerId: string,
   kind: MarkerKind
@@ -56,6 +57,7 @@ function tryStartAutoscoreForKind(kind: MarkerKind): void {
   })
 }
 
+/** Attempts to kick off autoscore for both profile and post after DOM sync. */
 export function tickAutoscoreAfterScan(): void {
   tryStartAutoscoreForKind("profile")
   tryStartAutoscoreForKind("post")
@@ -73,6 +75,11 @@ async function refreshScoringFromStorage(): Promise<ScoringSectionFlags> {
   }
 }
 
+/**
+ * Subscribes to scoring settings changes and runs initial autoscore after loading flags from storage.
+ *
+ * @remarks chrome.storage.onChanged re-parses markers and re-ticks autoscore when profile/post settings change.
+ */
 export async function registerMarkerAutoscore(): Promise<void> {
   await refreshScoringFromStorage()
 
@@ -84,7 +91,7 @@ export async function registerMarkerAutoscore(): Promise<void> {
       }
       void refreshScoringFromStorage()
         .then((section) => {
-          runAllLinkedInParsers(section)
+          runParseAndSyncMarkers(section)
           tickAutoscoreAfterScan()
         })
         .catch(() => {})

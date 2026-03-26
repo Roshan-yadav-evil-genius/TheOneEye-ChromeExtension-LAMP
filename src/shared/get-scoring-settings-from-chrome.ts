@@ -16,10 +16,12 @@ import {
 const THRESHOLD_MIN = 1
 const THRESHOLD_MAX = 100
 
+/** Clamps a threshold to 1–100 integers. */
 function clampThreshold(n: number): number {
   return Math.min(THRESHOLD_MAX, Math.max(THRESHOLD_MIN, Math.round(n)))
 }
 
+/** Merges persisted profile scoring with defaults and clamps threshold. */
 function mergeProfile(
   partial?: Partial<ProfileScoringSettings>
 ): ProfileScoringSettings {
@@ -28,12 +30,14 @@ function mergeProfile(
   return m
 }
 
+/** Merges persisted post scoring with defaults and clamps threshold. */
 function mergePost(partial?: Partial<PostScoringSettings>): PostScoringSettings {
   const m = { ...DEFAULT_POST_SCORING, ...partial }
   m.threshold = clampThreshold(m.threshold)
   return m
 }
 
+/** Profile and post scoring settings read together for content/service. */
 export type ScoringSettingsBundle = {
   profile: ProfileScoringSettings
   post: PostScoringSettings
@@ -42,6 +46,8 @@ export type ScoringSettingsBundle = {
 /**
  * Full profile/post scoring settings from chrome.storage.local (merged defaults,
  * clamped thresholds). Same persistence shape as the popup scoring store.
+ *
+ * @remarks Reads chrome.storage.local; on invalidated extension context returns defaults with sections disabled.
  */
 export async function getScoringSettingsFromChrome(): Promise<ScoringSettingsBundle> {
   if (typeof chrome === "undefined" || !chrome.storage?.local) {
@@ -84,7 +90,11 @@ export async function getScoringSettingsFromChrome(): Promise<ScoringSettingsBun
   }
 }
 
-/** Whether profile/post scoring sections are enabled (markers may be shown). */
+/**
+ * Returns whether profile and post scoring sections are enabled (markers may show).
+ *
+ * @remarks Convenience over getScoringSettingsFromChrome for gating only.
+ */
 export async function getScoringSectionEnabledFromChrome(): Promise<{
   profile: boolean
   post: boolean

@@ -1,3 +1,6 @@
+/**
+ * Popup entry: mounts React with theme and tooltip providers.
+ */
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 

@@ -9,6 +9,7 @@ import {
   SETTINGS_PROFILE_SCORING,
 } from "@/constants/popup-storage-keys"
 
+/** True when chrome.storage.local is available in the popup context. */
 export function isChromeStorageAvailable(): boolean {
   return typeof chrome !== "undefined" && !!chrome.storage?.local
 }
@@ -25,6 +26,7 @@ type SettingsStored = {
   [SETTINGS_POST_SCORING]: PostScoringSettings
 }
 
+/** Reads intention fields from chrome.storage.local into partial store shape. */
 export async function readIntentionFromChrome(): Promise<
   Partial<{
     profileDescription: string
@@ -66,6 +68,7 @@ export async function readIntentionFromChrome(): Promise<
   return out
 }
 
+/** Persists intention strings and tag arrays to chrome.storage.local. */
 export async function writeIntentionToChrome(payload: {
   profileDescription: string
   postDescription: string
@@ -82,6 +85,7 @@ export async function writeIntentionToChrome(payload: {
   await chrome.storage.local.set(record)
 }
 
+/** Reads profile/post scoring settings objects from chrome.storage.local (partial). */
 export async function readScoringSettingsFromChrome(): Promise<{
   profile?: Partial<ProfileScoringSettings>
   post?: Partial<PostScoringSettings>
@@ -107,6 +111,7 @@ export async function readScoringSettingsFromChrome(): Promise<{
   return out
 }
 
+/** Writes full profile and post scoring settings to chrome.storage.local. */
 export async function writeScoringSettingsToChrome(payload: {
   profile: ProfileScoringSettings
   post: PostScoringSettings

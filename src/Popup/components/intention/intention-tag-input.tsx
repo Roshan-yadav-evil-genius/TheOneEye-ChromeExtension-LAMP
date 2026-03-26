@@ -13,6 +13,7 @@ type Props = {
   onRemove: (tag: string) => void
 }
 
+/** Controlled tag chip list with text input to add tags (Enter/comma commit). */
 export function IntentionTagInput({
   title,
   placeholder,

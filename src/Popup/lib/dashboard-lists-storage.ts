@@ -12,6 +12,11 @@ import type {
 } from "../../shared/dashboard-storage-types.ts"
 import type { Post, Profile } from "../../Content/types.ts"
 
+/**
+ * chrome.storage helpers for dashboard threshold hits (with legacy migration) and qualified rows.
+ */
+
+/** Type guard for Profile JSON in storage rows. */
 function isProfile(x: unknown): x is Profile {
   if (!x || typeof x !== "object") return false
   const o = x as Record<string, unknown>
@@ -24,6 +29,7 @@ function isProfile(x: unknown): x is Profile {
   )
 }
 
+/** Type guard for Post JSON in storage rows. */
 function isPost(x: unknown): x is Post {
   if (!x || typeof x !== "object") return false
   const o = x as Record<string, unknown>
@@ -39,6 +45,7 @@ function isPost(x: unknown): x is Post {
   )
 }
 
+/** Validates unified threshold hit array from storage. */
 function parseThresholdHits(raw: unknown): DashboardThresholdHit[] {
   if (!Array.isArray(raw)) return []
   return raw.filter((row): row is DashboardThresholdHit => {
@@ -74,6 +81,7 @@ function parseLegacyProfileHits(raw: unknown): DashboardProfileHitLegacy[] {
   )
 }
 
+/** Parses pre-unification post-only hit list. */
 function parseLegacyPostHits(raw: unknown): DashboardPostHitLegacy[] {
   if (!Array.isArray(raw)) return []
   return raw.filter(
@@ -89,21 +97,25 @@ function parseLegacyPostHits(raw: unknown): DashboardPostHitLegacy[] {
   )
 }
 
+/** Normalized profile URL for dedupe. */
 function dedupeUrlFromProfile(profile: Profile): string | null {
   const u = profile.url.trim()
   return u.length > 0 ? u : null
 }
 
+/** Dedupe key from post publisher URL. */
 function dedupeUrlFromPost(post: Post): string | null {
   return dedupeUrlFromProfile(post.publisher)
 }
 
+/** Dedupe key for a unified hit row. */
 function dedupeUrlForHit(hit: DashboardThresholdHit): string | null {
   return hit.source === "profile"
     ? dedupeUrlFromProfile(hit.profile)
     : dedupeUrlFromPost(hit.post)
 }
 
+/** Merges legacy post/profile lists into unified rows with URL dedupe. */
 function migrateLegacyToUnified(
   legacyPosts: DashboardPostHitLegacy[],
   legacyProfiles: DashboardProfileHitLegacy[]
@@ -141,6 +153,7 @@ function migrateLegacyToUnified(
   return merged
 }
 
+/** Loads threshold hits, migrating legacy keys to DASHBOARD_THRESHOLD_HITS once. */
 async function loadThresholdHitsWithMigration(): Promise<
   DashboardThresholdHit[]
 > {
@@ -173,6 +186,7 @@ async function loadThresholdHitsWithMigration(): Promise<
   return unified
 }
 
+/** Validates qualified profile rows from storage. */
 function parseQualified(raw: unknown): DashboardQualifiedRow[] {
   if (!Array.isArray(raw)) return []
   return raw.filter(
@@ -185,6 +199,7 @@ function parseQualified(raw: unknown): DashboardQualifiedRow[] {
   )
 }
 
+/** Threshold hits split by source plus qualified list for the dashboard UI. */
 export type DashboardListsSnapshot = {
   thresholdHits: DashboardThresholdHit[]
   postHits: Extract<DashboardThresholdHit, { source: "post" }>[]
@@ -192,6 +207,7 @@ export type DashboardListsSnapshot = {
   qualified: DashboardQualifiedRow[]
 }
 
+/** Reads dashboard lists from chrome.storage.local (runs migration when needed). */
 export async function readDashboardLists(): Promise<DashboardListsSnapshot> {
   if (typeof chrome === "undefined" || !chrome.storage?.local) {
     return {
@@ -217,6 +233,7 @@ export async function readDashboardLists(): Promise<DashboardListsSnapshot> {
   return { thresholdHits, postHits, profileHits, qualified }
 }
 
+/** Removes one threshold hit row by id. */
 export async function dropThresholdHit(id: string): Promise<void> {
   const list = await loadThresholdHitsWithMigration()
   await chrome.storage.local.set({
@@ -224,6 +241,7 @@ export async function dropThresholdHit(id: string): Promise<void> {
   })
 }
 
+/** Removes one qualified profile row by id. */
 export async function dropQualified(id: string): Promise<void> {
   const raw = await chrome.storage.local.get(DASHBOARD_QUALIFIED)
   const list = parseQualified(raw[DASHBOARD_QUALIFIED])
@@ -232,6 +250,7 @@ export async function dropQualified(id: string): Promise<void> {
   })
 }
 
+/** Moves a threshold hit into the qualified list and drops it from threshold storage. */
 export async function qualifyThresholdHit(id: string): Promise<void> {
   const list = await loadThresholdHitsWithMigration()
   const hit = list.find((h) => h.id === id)
@@ -265,6 +284,7 @@ export async function clearThresholdHitsPreservingQualified(): Promise<void> {
   ])
 }
 
+/** Keys watched by the dashboard hook for live updates. */
 export const DASHBOARD_STORAGE_KEYS = [
   DASHBOARD_THRESHOLD_HITS,
   DASHBOARD_POST_HITS,

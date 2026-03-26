@@ -9,6 +9,7 @@ interface StatRowProps {
   className?: string
 }
 
+/** Single labeled metric row with icon for the stats dashboard card. */
 export function StatRow({ icon: Icon, label, value, className }: StatRowProps) {
   return (
     <div

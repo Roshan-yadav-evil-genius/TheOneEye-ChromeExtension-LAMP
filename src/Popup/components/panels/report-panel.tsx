@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { submitReportIssue } from "@/lib/submit-report"
 
+/** Issue report form that POSTs to the configured workflow API. */
 export function ReportPanel() {
   const [description, setDescription] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)

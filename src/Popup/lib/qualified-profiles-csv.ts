@@ -14,6 +14,7 @@ export function buildQualifiedProfilesCsv(profiles: Profile[]): string {
   return lines.join("\n")
 }
 
+/** Builds CSV from profiles and copies it to the clipboard. */
 export async function copyQualifiedProfilesCsvToClipboard(
   profiles: Profile[]
 ): Promise<void> {

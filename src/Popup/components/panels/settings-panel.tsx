@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils"
 import { useIntentionStore } from "@/stores/intention-store"
 import { useScoringSettingsStore } from "@/stores/scoring-settings-store"
 
+/** Profile/post scoring toggles, thresholds, and activity options with disabled hints. */
 export function SettingsPanel() {
   const profileDescription = useIntentionStore((s) => s.profileDescription)
   const postDescription = useIntentionStore((s) => s.postDescription)

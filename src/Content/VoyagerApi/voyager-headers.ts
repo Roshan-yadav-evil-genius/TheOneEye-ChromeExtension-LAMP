@@ -1,3 +1,4 @@
+/** Reads JSESSIONID from document.cookie for LinkedIn CSRF header. */
 function getJsessionIdFromCookie(): string {
   const cookies = document.cookie
     .split("; ")
@@ -9,6 +10,11 @@ function getJsessionIdFromCookie(): string {
   return (cookies["JSESSIONID"] ?? "").replace(/"/g, "")
 }
 
+/**
+ * Builds same-origin Voyager API fetch headers (csrf, sec-ch-ua, accept, referer).
+ *
+ * @remarks Uses page cookies and navigator; intended only inside linkedin.com content scripts.
+ */
 export function buildVoyagerHeaders(options?: {
   referer?: string
 }): Record<string, string> {

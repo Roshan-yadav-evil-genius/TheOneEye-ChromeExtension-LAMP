@@ -27,12 +27,14 @@ export const DEFAULT_POST_SCORING: PostScoringSettings = {
   autoscore: false,
 }
 
+/** Shallow-merges partial profile scoring onto DEFAULT_PROFILE_SCORING. */
 export function mergeProfileScoring(
   partial?: Partial<ProfileScoringSettings>
 ): ProfileScoringSettings {
   return { ...DEFAULT_PROFILE_SCORING, ...partial }
 }
 
+/** Shallow-merges partial post scoring onto DEFAULT_POST_SCORING. */
 export function mergePostScoring(
   partial?: Partial<PostScoringSettings>
 ): PostScoringSettings {

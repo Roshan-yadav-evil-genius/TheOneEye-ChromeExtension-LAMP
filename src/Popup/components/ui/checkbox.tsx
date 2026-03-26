@@ -4,6 +4,7 @@ import { Checkbox as CheckboxPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 
+/** Radix checkbox root styled for the popup. */
 function Checkbox({
   className,
   ...props

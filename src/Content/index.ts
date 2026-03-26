@@ -2,12 +2,14 @@
  * Runs in page contexts matched by manifest `content_scripts`.
  * Keep this entry self-contained to avoid extra chunk files in the extension package.
  */
-import { registerMarkerAutoscore } from "./marker-autoscore.ts"
-import { registerMarkerScoringBridge } from "./marker-scoring-bridge.ts"
-import { startLinkedInPageScan } from "./scanner.ts"
+import { registerMarkerAutoscore } from "./marker/autoscore.ts"
+import { registerMarkerScoringBridge } from "./marker/scoring-bridge.ts"
+import { startLinkedInPageScan } from "./scanner/scanner.ts"
+import { matchesExtensionHost } from "./utils/url.ts"
 
+/** Registers scoring bridge, autoscore, and LinkedIn scan when the URL matches the extension host. */
 function init(): void {
-  if (!location.hostname.endsWith("linkedin.com")) return
+  if (!matchesExtensionHost(location)) return
   registerMarkerScoringBridge()
   void registerMarkerAutoscore()
     .then(() => {

@@ -6,6 +6,7 @@ import { resetStatsLifetimeInChrome } from "@/lib/stats-lifetime-storage"
 import type { StatsLifetimeBlob } from "../../shared/stats-lifetime-types.ts"
 import type { DashboardStatsSnapshot } from "@/types/extension-settings"
 
+/** Numeric counters shown on the dashboard stats card. */
 type LifetimeSlice = Pick<
   DashboardStatsSnapshot,
   | "profilesScored"
@@ -14,6 +15,7 @@ type LifetimeSlice = Pick<
   | "relevantPosts"
 >
 
+/** Lifetime stats plus chrome.storage byte usage; supports reset workflow. */
 interface StatsState extends LifetimeSlice {
   storageBytesUsed: number
   hydrateLifetime: (blob: StatsLifetimeBlob) => void
@@ -28,6 +30,11 @@ const lifetimeZeros: LifetimeSlice = {
   relevantPosts: 0,
 }
 
+/**
+ * Zustand store for scoring lifetime counters and Lamp storage footprint.
+ *
+ * @remarks reset clears stats and threshold hits in chrome.storage then refreshes bytes used.
+ */
 export const useStatsStore = create<StatsState>((set) => ({
   ...lifetimeZeros,
   storageBytesUsed: 0,

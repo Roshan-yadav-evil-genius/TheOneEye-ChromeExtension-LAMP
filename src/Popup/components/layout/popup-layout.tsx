@@ -9,6 +9,7 @@ interface PopupLayoutProps {
   children: ReactNode
 }
 
+/** Shell: top nav, optional sidebar for dashboard/intention, and scrollable main content. */
 export function PopupLayout({ children }: PopupLayoutProps) {
   const primary = usePopupNavStore((s) => s.primary)
   const showSidebar = primary === "dashboard" || primary === "intention"

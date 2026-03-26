@@ -3,6 +3,7 @@ import { Switch as SwitchPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 
+/** Radix switch toggle styled for settings rows. */
 function Switch({
   className,
   ...props

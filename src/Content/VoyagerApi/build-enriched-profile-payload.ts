@@ -15,10 +15,16 @@ import {
 } from "./profile-voyager-api.ts"
 import type { EnrichedLinkedInProfilePayload } from "./types.ts"
 
+/** Parses `/in/{vanity}` public identifier from a full or relative profile URL. */
 function extractPublicIdentifierFromProfileUrl(url: string): string | null {
+  const trimmed = url.trim()
+  if (!trimmed) return null
   try {
-    const parsed = new URL(url)
-    const match = parsed.pathname.match(/^\/in\/([^/]+)/i)
+    const pathname =
+      trimmed.startsWith("http://") || trimmed.startsWith("https://")
+        ? new URL(trimmed).pathname
+        : trimmed.split("?")[0].split("#")[0]
+    const match = pathname.match(/^\/in\/([^/]+)/i)
     return match?.[1] ? decodeURIComponent(match[1]) : null
   } catch {
     return null
@@ -29,6 +35,7 @@ function toActivityReferer(publicIdentifier: string, refererSuffix: string): str
   return `https://www.linkedin.com/in/${publicIdentifier}/recent-activity/${refererSuffix}/`
 }
 
+/** Returns profile URN from a Voyager profile response or throws profile_urn_missing. */
 function getProfileUrnOrThrow(profileResponse: unknown): string {
   const profileUrn = getProfileUrnFromVoyagerResponse(profileResponse)
   if (!profileUrn) {
@@ -37,6 +44,7 @@ function getProfileUrnOrThrow(profileResponse: unknown): string {
   return profileUrn
 }
 
+/** Fetches profile JSON when activity enrichment needs a URN but About fetch was skipped. */
 async function fetchProfileForActivityDependency(
   publicIdentifier: string
 ): Promise<unknown> {
@@ -54,6 +62,11 @@ export async function buildEnrichedLinkedInProfilePayloadForContent(
   return buildEnrichedLinkedInProfilePayload(raw, intention, settings)
 }
 
+/**
+ * Fetches optional Voyager profile and activity data and returns the scoring input bundle.
+ *
+ * @remarks Mutates no DOM; throws on missing vanity or activity fetch failures.
+ */
 export async function buildEnrichedLinkedInProfilePayload(
   raw: Profile,
   intention: EnrichedLinkedInProfilePayload["intention"],

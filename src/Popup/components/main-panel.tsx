@@ -4,6 +4,7 @@ import { ReportPanel } from "@/components/panels/report-panel"
 import { SettingsPanel } from "@/components/panels/settings-panel"
 import { usePopupNavStore } from "@/stores/popup-nav-store"
 
+/** Renders the active primary tab panel (dashboard, intention, settings, report). */
 export function MainPanel() {
   const primary = usePopupNavStore((s) => s.primary)
 

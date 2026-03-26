@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { usePopupNavStore } from "@/stores/popup-nav-store"
 import { useIntentionStore } from "@/stores/intention-store"
 
+/** Edits intention text and tag lists persisted to chrome.storage. */
 export function IntentionPanel() {
   const view = usePopupNavStore((s) => s.intentionView)
   const profileDescription = useIntentionStore((s) => s.profileDescription)

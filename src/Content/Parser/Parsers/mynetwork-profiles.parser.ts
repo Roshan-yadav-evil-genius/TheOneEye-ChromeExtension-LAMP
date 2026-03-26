@@ -1,14 +1,23 @@
-import { XPATH_MYNETWORK } from "../constants.ts"
-import { placeScoringButton, removeScoringButton } from "../Marker/Marker.ts"
-import type { Profile, ScoringSectionFlags } from "../types.ts"
-import { xpathFirstNode, xpathOrderedSnapshot } from "../utils/dom.ts"
-import { extractDirectTextList } from "../utils/text.ts"
-import { isValidLinkedInProfileUrl } from "../utils/url.ts"
+import type { ParsedMarkerInstruction, Profile } from "../../types.ts"
+import { xpathFirstNode, xpathOrderedSnapshot } from "../../utils/dom.ts"
+import { extractDirectTextList } from "../../utils/text.ts"
+import { isValidLinkedInProfileUrl, matchesExtensionHost } from "../../utils/url.ts"
 
-export function parseMyNetworkProfiles(
-  section: ScoringSectionFlags
-): Profile[] {
-  const parsedProfiles: Profile[] = []
+/** XPath for My Network invitation / connection cards (co-located with this parser). */
+const XPATH_MYNETWORK = {
+  profile: "//div[a[contains(@href,'/in/')]]",
+  profile_link: ".//a[contains(@href,'/in/')]",
+  avatarImg: ".//img",
+} as const
+
+/** My Network surfaces only — skips feed/search XPaths on other routes. */
+export function matchesMyNetworkLocation(loc: Location): boolean {
+  return matchesExtensionHost(loc) && loc.pathname.includes("/mynetwork")
+}
+
+/** Extracts profile card markers from My Network invitation/connection lists. */
+export function parseMyNetworkProfiles(): ParsedMarkerInstruction[] {
+  const out: ParsedMarkerInstruction[] = []
   const profiles = xpathOrderedSnapshot(XPATH_MYNETWORK.profile)
 
   for (let i = 0; i < profiles.snapshotLength; i++) {
@@ -59,13 +68,8 @@ export function parseMyNetworkProfiles(
       headline: profileHeadline,
     }
 
-    if (section.profile) {
-      placeScoringButton(node, { kind: "profile", data: profile })
-    } else {
-      removeScoringButton(node, { kind: "profile" })
-    }
-    parsedProfiles.push(profile)
+    out.push({ kind: "profile", anchor: node, data: profile })
   }
 
-  return parsedProfiles
+  return out
 }

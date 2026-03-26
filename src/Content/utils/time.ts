@@ -1,3 +1,4 @@
+/** Parses LinkedIn-style relative times (e.g. `3h • …`) into an approximate past Date. */
 export function parseRelativeTimeToDate(timeText: string | null): Date | null {
   if (!timeText) return null
 

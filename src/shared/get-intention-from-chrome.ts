@@ -17,6 +17,8 @@ const EMPTY: IntentionPayload = {
 
 /**
  * Reads persisted intention fields from chrome.storage.local for scoring.
+ *
+ * @remarks No-op safe when chrome.storage is missing; returns empty strings and arrays.
  */
 export async function getIntentionFromChrome(): Promise<IntentionPayload> {
   if (typeof chrome === "undefined" || !chrome.storage?.local) {
@@ -52,4 +54,5 @@ export async function getIntentionFromChrome(): Promise<IntentionPayload> {
   return out
 }
 
+/** Intention fields as read for scoring (alias of popup IntentionPayload). */
 export type { IntentionPayload as ScoringIntentionSnapshot }

@@ -13,6 +13,7 @@ export {
   mergeProfileScoring,
 } from "../../shared/scoring-settings-defaults.ts"
 
+/** Profile and post scoring toggles and thresholds (persisted via initPopupStorage). */
 interface ScoringSettingsState {
   profile: ProfileScoringSettings
   post: PostScoringSettings
@@ -20,6 +21,7 @@ interface ScoringSettingsState {
   setPost: (patch: Partial<PostScoringSettings>) => void
 }
 
+/** Zustand store for scoring settings merged with shared defaults on hydrate. */
 export const useScoringSettingsStore = create<ScoringSettingsState>((set) => ({
   profile: DEFAULT_PROFILE_SCORING,
   post: DEFAULT_POST_SCORING,

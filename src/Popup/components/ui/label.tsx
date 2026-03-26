@@ -3,6 +3,7 @@ import { Label as LabelPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 
+/** Radix label primitive with form styling. */
 function Label({
   className,
   ...props

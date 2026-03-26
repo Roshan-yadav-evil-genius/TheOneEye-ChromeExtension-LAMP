@@ -1,5 +1,5 @@
-import { THE_ONE_EYE_MARKER_CLASS } from "../constants.ts"
-import { clearAutoscoreBusyIfMatches } from "../marker-autoscore-busy.ts"
+import { THE_ONE_EYE_MARKER_CLASS } from "./constants.ts"
+import { clearAutoscoreBusyIfMatches } from "./autoscore-busy.ts"
 import type {
   MarkerDomState,
   MarkerInteractionPayload,
@@ -9,10 +9,18 @@ import type {
   Profile,
 } from "../types.ts"
 
+/**
+ * In-page scoring marker UI: create/remove buttons, keep payloads, drive default/loading/score/error visuals.
+ *
+ * @remarks Mutates the DOM; coordinates with autoscore via disabled state when a kind is auto-scoring.
+ */
+
+/** Layout options for a marker host (floating overlay vs inline). */
 export interface TheOneEyeOptions {
   float?: boolean
 }
 
+/** Discriminated options for placing either a profile or post marker. */
 export type PlaceScoringButtonOptions =
   | (TheOneEyeOptions & { kind: "profile"; data: Profile })
   | (TheOneEyeOptions & { kind: "post"; data: Post })
@@ -27,7 +35,7 @@ export const DEFAULT_SCORE_THRESHOLD = 50
 export const MARKER_KIND_ATTRIBUTE = "data-kind" as const
 
 /**
- * Mirrors visual state for DOM queries. Values: default | loading | score.
+ * Mirrors visual state for DOM queries. Values: default | loading | score | error.
  */
 export const MARKER_STATE_ATTRIBUTE = "data-marker-state" as const
 
@@ -46,10 +54,31 @@ let autoscorePostActive = false
 let interactionHandler: ((payload: MarkerInteractionPayload) => void) | null =
   null
 
-function defaultInteractionHandler(payload: MarkerInteractionPayload): void {
-  void payload
+export type ProfileMarkerPlacedPayload = {
+  markerId: string
+  data: Profile
 }
 
+let profileMarkerPlacedHandler: ((
+  payload: ProfileMarkerPlacedPayload
+) => void) | null = null
+
+/** Registers a callback invoked when a profile marker is placed (cache hydration). */
+export function setProfileMarkerPlacedHandler(
+  handler: ((payload: ProfileMarkerPlacedPayload) => void) | null
+): void {
+  profileMarkerPlacedHandler = handler
+}
+
+function defaultInteractionHandler(payload: MarkerInteractionPayload): void {
+  console.warn("[SCORE][CLICK] no interaction handler registered", {
+    markerId: payload.id,
+    kind: payload.kind,
+    payload,
+  })
+}
+
+/** Registers the handler for marker button clicks (e.g. scoring bridge). */
 export function setMarkerInteractionHandler(
   handler: ((payload: MarkerInteractionPayload) => void) | null
 ): void {
@@ -108,6 +137,7 @@ export function getMarkerAutoscoreFlags(): {
   }
 }
 
+/** Looks up the interaction payload stored for a marker button by DOM id. */
 export function getMarkerPayloadForId(
   id: string
 ): MarkerInteractionPayload | null {
@@ -122,6 +152,14 @@ function cancelSpinner(button: HTMLButtonElement): void {
     anim.cancel()
     markerSpinnerAnimations.delete(button)
   }
+}
+
+/**
+ * Stops the event from reaching a wrapping `<a>` (or other parents) so clicks score instead of navigating.
+ */
+function blockMarkerEventFromActivatingParentLink(event: Event): void {
+  event.preventDefault()
+  event.stopPropagation()
 }
 
 function createEyeContainer(
@@ -272,6 +310,25 @@ function scoreUi(
   container.appendChild(badge)
 }
 
+/** Scoring failed: solid red disc, no score number (autoscore skips this state). */
+function errorUi(container: HTMLElement): void {
+  container.innerHTML = ""
+
+  const disc = document.createElement("div")
+  disc.style.cssText = `
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 2px solid #e0b741;
+        box-sizing: border-box;
+        background: #b91c1c;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `
+  container.appendChild(disc)
+}
+
 function isMarkerButton(el: Element): el is HTMLButtonElement {
   return (
     el instanceof HTMLButtonElement &&
@@ -279,6 +336,11 @@ function isMarkerButton(el: Element): el is HTMLButtonElement {
   )
 }
 
+/**
+ * Applies a visual update to the marker button with the given id.
+ *
+ * @remarks DOM update; cancels any in-flight spinner animation before switching state.
+ */
 export function updateMarkerState(id: string, update: MarkerVisualUpdate): void {
   const el = document.getElementById(id)
   if (!el || !isMarkerButton(el)) return
@@ -302,6 +364,10 @@ export function updateMarkerState(id: string, update: MarkerVisualUpdate): void 
       setMarkerButtonDomState(el, "score")
       break
     }
+    case "error":
+      errorUi(el)
+      setMarkerButtonDomState(el, "error")
+      break
   }
 }
 
@@ -332,13 +398,47 @@ export function placeScoringButton(
   deformEyeUi(eyeContainer)
   applyAutoscoreDisabledToButton(eyeContainer)
 
-  eyeContainer.addEventListener("click", () => {
-    if (eyeContainer.disabled) return
+  eyeContainer.addEventListener("pointerdown", blockMarkerEventFromActivatingParentLink, {
+    capture: true,
+  })
+  eyeContainer.addEventListener("mousedown", blockMarkerEventFromActivatingParentLink, {
+    capture: true,
+  })
+
+  eyeContainer.addEventListener("click", (event: MouseEvent) => {
+    blockMarkerEventFromActivatingParentLink(event)
+    const markerState = eyeContainer.getAttribute(MARKER_STATE_ATTRIBUTE)
+    console.log("[SCORE][CLICK] marker clicked", {
+      markerId: id,
+      kind,
+      disabled: eyeContainer.disabled,
+      markerState,
+    })
+    if (eyeContainer.disabled) {
+      console.warn("[SCORE][CLICK] click ignored because disabled", {
+        markerId: id,
+        kind,
+      })
+      return
+    }
     const p = markerPayloads.get(eyeContainer)
     if (p) {
+      console.log("[SCORE][CLICK] dispatch interaction payload", {
+        markerId: p.id,
+        kind: p.kind,
+        payload: p,
+      })
       resolveInteractionHandler()(p)
+      return
     }
+    console.warn("[SCORE][CLICK] missing marker payload", { markerId: id, kind })
   })
+
+  if (kind === "profile") {
+    queueMicrotask(() => {
+      profileMarkerPlacedHandler?.({ markerId: id, data })
+    })
+  }
 
   return id
 }

@@ -36,6 +36,7 @@ const INTENTION_ITEMS: {
   { id: "keywords", label: "Keywords", icon: Tag },
 ]
 
+/** Secondary nav for dashboard sub-views and intention sub-views. */
 export function PopupSidebar() {
   const primary = usePopupNavStore((s) => s.primary)
   const dashboardView = usePopupNavStore((s) => s.dashboardView)
