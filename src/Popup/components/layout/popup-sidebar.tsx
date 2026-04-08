@@ -1,6 +1,7 @@
 import {
   BarChart3,
   FileText,
+  FolderSync,
   Heading,
   Star,
   Tag,
@@ -23,6 +24,7 @@ const DASHBOARD_ITEMS: {
   { id: "profiles", label: "Profiles", icon: User },
   { id: "qualified", label: "Qualified", icon: Star },
   { id: "stats", label: "Stats", icon: BarChart3 },
+  { id: "migrate", label: "Migrate", icon: FolderSync },
 ]
 
 const INTENTION_ITEMS: {

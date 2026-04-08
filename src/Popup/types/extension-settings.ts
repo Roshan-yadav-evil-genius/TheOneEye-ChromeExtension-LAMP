@@ -4,7 +4,12 @@
 
 export type PrimaryTab = "dashboard" | "intention" | "settings" | "report"
 
-export type DashboardView = "posts" | "profiles" | "qualified" | "stats"
+export type DashboardView =
+  | "posts"
+  | "profiles"
+  | "qualified"
+  | "stats"
+  | "migrate"
 
 export type IntentionView = "profile" | "post" | "keywords" | "headline"
 

@@ -8,6 +8,7 @@ import {
 } from "lucide-react"
 
 import { DashboardHitRow } from "@/components/dashboard/dashboard-hit-row"
+import { MigrateDashboardPanel } from "@/components/dashboard/migrate-dashboard-panel"
 import { QualifiedDashboardToolbar } from "@/components/dashboard/qualified-dashboard-toolbar"
 import { StatRow } from "@/components/dashboard/stat-row"
 import { Button } from "@/components/ui/button"
@@ -56,6 +57,10 @@ export function DashboardPanel() {
   const reset = useStatsStore((s) => s.reset)
   const profilesInCache =
     postHits.length + profileHits.length + qualified.length
+
+  if (view === "migrate") {
+    return <MigrateDashboardPanel />
+  }
 
   if (view === "stats") {
     return (

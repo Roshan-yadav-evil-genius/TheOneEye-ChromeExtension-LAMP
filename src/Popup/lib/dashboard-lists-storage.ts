@@ -45,8 +45,8 @@ function isPost(x: unknown): x is Post {
   )
 }
 
-/** Validates unified threshold hit array from storage. */
-function parseThresholdHits(raw: unknown): DashboardThresholdHit[] {
+/** Validates unified threshold hit array from storage or migration JSON. */
+export function parseThresholdHits(raw: unknown): DashboardThresholdHit[] {
   if (!Array.isArray(raw)) return []
   return raw.filter((row): row is DashboardThresholdHit => {
     if (!row || typeof row !== "object") return false
@@ -186,8 +186,8 @@ async function loadThresholdHitsWithMigration(): Promise<
   return unified
 }
 
-/** Validates qualified profile rows from storage. */
-function parseQualified(raw: unknown): DashboardQualifiedRow[] {
+/** Validates qualified profile rows from storage or migration JSON. */
+export function parseQualified(raw: unknown): DashboardQualifiedRow[] {
   if (!Array.isArray(raw)) return []
   return raw.filter(
     (row): row is DashboardQualifiedRow =>
@@ -197,6 +197,62 @@ function parseQualified(raw: unknown): DashboardQualifiedRow[] {
       typeof (row as DashboardQualifiedRow).qualifiedAt === "number" &&
       isProfile((row as DashboardQualifiedRow).profile)
   )
+}
+
+/**
+ * Appends imported dashboard rows with profile-URL dedupe against existing + newly added rows.
+ * Imported rows receive new ids to avoid collisions with local storage.
+ */
+export function mergeDashboardListsAppend(
+  existingHits: DashboardThresholdHit[],
+  existingQualified: DashboardQualifiedRow[],
+  importedHits: DashboardThresholdHit[],
+  importedQualified: DashboardQualifiedRow[]
+): {
+  thresholdHits: DashboardThresholdHit[]
+  qualified: DashboardQualifiedRow[]
+} {
+  const seen = new Set<string>()
+  for (const h of existingHits) {
+    const u = dedupeUrlForHit(h)
+    if (u !== null) seen.add(u)
+  }
+  for (const q of existingQualified) {
+    const u = dedupeUrlFromProfile(q.profile)
+    if (u !== null) seen.add(u)
+  }
+
+  const nextHits: DashboardThresholdHit[] = [...existingHits]
+  for (const h of importedHits) {
+    const u = dedupeUrlForHit(h)
+    if (u !== null && seen.has(u)) continue
+    if (u !== null) seen.add(u)
+    const id = crypto.randomUUID()
+    if (h.source === "profile") {
+      nextHits.push({
+        ...h,
+        id,
+      })
+    } else {
+      nextHits.push({
+        ...h,
+        id,
+      })
+    }
+  }
+
+  const nextQualified: DashboardQualifiedRow[] = [...existingQualified]
+  for (const row of importedQualified) {
+    const u = dedupeUrlFromProfile(row.profile)
+    if (u !== null && seen.has(u)) continue
+    if (u !== null) seen.add(u)
+    nextQualified.push({
+      ...row,
+      id: crypto.randomUUID(),
+    })
+  }
+
+  return { thresholdHits: nextHits, qualified: nextQualified }
 }
 
 /** Threshold hits split by source plus qualified list for the dashboard UI. */
